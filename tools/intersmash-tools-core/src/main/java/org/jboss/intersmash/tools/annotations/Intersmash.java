@@ -41,7 +41,7 @@ public @interface Intersmash {
 	 * The target environment where the interoperability scenario will be deployed
 	 * @return {@link Target} value identifying the interoperability scenario target environment
 	 */
-	Target[] targets() default { Target.OpenShift };
+	Target target() default Target.OpenShift;
 
 	enum Target {
 		/**
