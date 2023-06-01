@@ -16,7 +16,10 @@
 package org.jboss.intersmash.tools.junit5;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.jboss.intersmash.tools.IntersmashConfig;
 import org.jboss.intersmash.tools.annotations.Intersmash;
@@ -30,17 +33,35 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class IntersmashExecutionCondition implements ExecutionCondition {
-
 	private static final Predicate<Service> isOperatorApplication = (application) -> OperatorApplication.class
 			.isAssignableFrom(application.value());
 
 	@Override
 	public ConditionEvaluationResult evaluateExecutionCondition(ExtensionContext context) {
+		final List<String> targets = Arrays.stream(IntersmashConfig.getJunit5ExecutionTargets())
+				.collect(Collectors.toList());
+		// log what the configured JUnit 5 target execution environment names are
+		log.debug("Configured JUnit 5 execution environments: {}", targets.stream().collect(Collectors.joining(",")));
+
 		Intersmash[] intersmashes = context.getRequiredTestClass().getAnnotationsByType(Intersmash.class);
 		Intersmash intersmash;
 		if (intersmashes.length > 0) {
 			intersmash = intersmashes[0];
-			log.debug("Running: {}", context.getRequiredTestClass().getSimpleName());
+
+			Set<String> testClassTargets = Arrays.stream(intersmash.targets()).map(Intersmash.Target::name)
+					.distinct()
+					.filter(targets::contains)
+					.collect(Collectors.toSet());
+
+			if (testClassTargets.isEmpty()) {
+				return ConditionEvaluationResult.disabled(
+						String.format(
+								"The @Intersmash annotation is set to target %s which has not been configured for the current execution.",
+								Arrays.stream(intersmash.targets()).map(Intersmash.Target::name)
+										.collect(Collectors.joining(","))));
+			}
+			log.debug("Running: {}, targeting {}", context.getRequiredTestClass().getSimpleName(),
+					intersmash.targets().toString());
 			if (IntersmashConfig.isOcp3x() && Arrays.stream(intersmash.value()).anyMatch(isOperatorApplication)) {
 				return ConditionEvaluationResult.disabled("OLM is not available on OCP 3.x clusters, " +
 						"skip the tests due to OperatorApplication(s) involvement.");
