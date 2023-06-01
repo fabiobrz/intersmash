@@ -23,9 +23,34 @@ import java.lang.annotation.Target;
 import org.jboss.intersmash.tools.junit5.IntersmashExtension;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+/**
+ * Identifies test classes which lifecycle will be managed by {@link IntersmashExtension}.
+ * Contains elements that describe the services composing the interoperability scenario.
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @ExtendWith(IntersmashExtension.class)
 public @interface Intersmash {
+	/**
+	 * Services composing the interoperability scenario
+	 * @return A list of {@link Service} instances that describe the interoperability scenario
+	 */
 	Service[] value();
+
+	/**
+	 * The target environment where the interoperability scenario will be deployed
+	 * @return {@link Target} value identifying the interoperability scenario target environment
+	 */
+	Target target() default Target.OpenShift;
+
+	enum Target {
+		/**
+		 * Provision on OpenShift
+		 */
+		OpenShift,
+		/**
+		 * Provision on vanilla Kubernetes
+		 */
+		Kubernetes
+	}
 }
