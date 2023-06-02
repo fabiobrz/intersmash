@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import cz.xtf.core.openshift.OpenShifts;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -62,7 +63,9 @@ public class IntersmashExecutionCondition implements ExecutionCondition {
 			}
 			log.debug("Running: {}, targeting {}", context.getRequiredTestClass().getSimpleName(),
 					intersmash.targets().toString());
-			if (IntersmashConfig.isOcp3x() && Arrays.stream(intersmash.value()).anyMatch(isOperatorApplication)) {
+			log.debug("Running: {}", context.getRequiredTestClass().getSimpleName());
+			if (IntersmashConfig.isOcp3x(OpenShifts.admin())
+					&& Arrays.stream(intersmash.value()).anyMatch(isOperatorApplication)) {
 				return ConditionEvaluationResult.disabled("OLM is not available on OCP 3.x clusters, " +
 						"skip the tests due to OperatorApplication(s) involvement.");
 			}
