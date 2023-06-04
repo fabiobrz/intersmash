@@ -163,14 +163,40 @@ more information can be found in [the provisioners' documentation](./provisioner
 
 ## Platforms
 
-Intersmash is designed to allow executions on different Kubernetes compliant platforms.
-At the moment we are fully focused on supporting provisioning implementation for OpenShift, running on Linux support. 
-We welcome community contributions to other Kubernetes implementations.
+Although Intersmash is designed to allow executions on different platforms, we fully focus on OpenShift, running on Linux. 
+Kubernetes support is also being introduced. 
+Support for other platforms (Bare-metal etc.) could be added later on demand, we welcome community contributions!
+
+### Conditional test execution based on test environment platforms
+
+Each test that is annotated by the `@Intersmash` annotation will be managed by the Intersmash test execution engine,
+which relies on JUnit5 Jupiter extensions.
+
+This way, any annotated test class which is managed by the Intersmash execution engine can either target an
+OpenShift cluster or a Kubernetes one, which is definedby the `@Intersmash` annotation `target` field, allowing for 
+the following values to be set: `OpenShift`, `Kubernetes`.
+
+By default, the `@Intersmash` annotation will configure the test class for execution on an OpenShift cluster test
+environment. Therefore, the test execution engine will try to connect to an existing OpenShift cluster and perform
+operations on it.
+Similarly, setting `target` to `Kubernetes` will cause the test execution engine to deal with an existing Kubernetes
+cluster.
+
+When executing tests, Intersmash can be configured through the `intersmash.junit5.execution.targets` property to
+define which platforms the actual target environment supports. The property accepts a comma-separated list
+based on the following values: `OpenShift`, `Kubernetes`.
+For example, a developer could have one Kubernetes and one OpenShift clusters available, and set the property value
+to `OpenShift,Kubernetes`. Instead, it should be set to `OpenShift` for a given CI execution where just an OpenShift
+cluster is available.
+
+Tests are enabled or disabled conditionally, based on such information - i.e. the `target` value on an Intersmash test
+_and_ the actual targets that a test environment provides: _if an Intersmash test class is set to target a given
+environment, then such target must be configured through the `intersmash.junit5.execution.targets` property_.
 
 
 ## Future goals
-* K8s support and Quarkus provisioning
-* documentation and examples enhancements
+* OpenShift AI support and Quarkus provisioning
+* Enhancements to CI, documentation and examples
 
 see the [current milestone](https://github.com/Intersmash/intersmash/milestone/2) for a complete list of issues.
 
