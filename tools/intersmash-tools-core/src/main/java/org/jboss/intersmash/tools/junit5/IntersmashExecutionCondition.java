@@ -47,19 +47,21 @@ public class IntersmashExecutionCondition implements ExecutionCondition {
 		Intersmash intersmash;
 		if (intersmashes.length > 0) {
 			intersmash = intersmashes[0];
-			// Skip tests that don't fit the environments supported by the actual test execution environemnt
-			if (!targets.contains(intersmash.target().name())) {
+
+			// Skip tests that don't fit the environments supported by the actual test execution environment
+			if (IntersmashExtensionHelper.isIntersmashTargetingOpenShift(context) && !IntersmashConfig.testEnvironmentSupportsOpenShift()) {
 				return ConditionEvaluationResult.disabled(
-						String.format(
-								"The @Intersmash annotation is set to target %s which has not been configured for the current execution.",
-								intersmash.target().name()));
+						"An @Intersmash service is set to target OpenShift which has not been configured for the current execution."
+				);
 			}
-			log.debug("Running: {}, targeting {}", context.getRequiredTestClass().getSimpleName(),
-					intersmash.target().toString());
+			if (IntersmashExtensionHelper.isIntersmashTargetingKubernetes(context) && !IntersmashConfig.testEnvironmentSupportsKubernetes()) {
+				return ConditionEvaluationResult.disabled(
+						"An @Intersmash service is set to target Kubernetes which has not been configured for the current execution."
+				);
+			}
 			log.debug("Running: {}", context.getRequiredTestClass().getSimpleName());
-			// evaluate pecupliar OpenShift/Kubernetes requirements
-			if (IntersmashConfig.isOcp3x(OpenShifts.admin())
-					&& Arrays.stream(intersmash.value()).anyMatch(isOperatorApplication)) {
+			// evaluate peculiar OpenShift/Kubernetes requirements
+			if (IntersmashExtensionHelper.isIntersmashTargetingOpenShift(context) && IntersmashConfig.isOcp3x(OpenShifts.admin()) && Arrays.stream(intersmash.value()).anyMatch(isOperatorApplication)) {
 				return ConditionEvaluationResult.disabled("OLM is not available on OCP 3.x clusters, " +
 						"skip the tests due to OperatorApplication(s) involvement.");
 			}

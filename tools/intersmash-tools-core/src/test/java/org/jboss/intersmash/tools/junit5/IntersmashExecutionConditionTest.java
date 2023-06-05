@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jboss.intersmash.tools.IntersmashConfig;
 import org.jboss.intersmash.tools.annotations.Intersmash;
 import org.jboss.intersmash.tools.annotations.Service;
-import org.jboss.intersmash.tools.application.Application;
+import org.jboss.intersmash.tools.application.k8s.KubernetesApplication;
+import org.jboss.intersmash.tools.application.openshift.OpenShiftApplication;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,26 +28,18 @@ public class IntersmashExecutionConditionTest {
 	private SystemProperties systemProperties;
 
 	private static final IntersmashExecutionCondition INTERSMASH_EXECUTION_CONDITION = new IntersmashExecutionCondition();
-	private static final List<String> ALL_SUPPORTED = Stream.of(
-			Intersmash.Target.Kubernetes.name(), Intersmash.Target.OpenShift.name()).collect(Collectors.toList());
+	private static final List<String> ALL_SUPPORTED = Stream.of("OpenShift", "Kubernetes").collect(Collectors.toList());
 
 	@Intersmash(value = {
-			@Service(Application.class)
-	}, target = Intersmash.Target.OpenShift)
+			@Service(OpenShiftApplication.class)
+	})
 	class OpenShiftTargetTestClass {
 
 	}
 
 	@Intersmash(value = {
-			@Service(Application.class)
+			@Service(KubernetesApplication.class)
 	})
-	class DefaultTargetTestClass {
-
-	}
-
-	@Intersmash(value = {
-			@Service(Application.class)
-	}, target = Intersmash.Target.Kubernetes)
 	class KubernetesTargetTestClass {
 
 	}
@@ -56,23 +50,9 @@ public class IntersmashExecutionConditionTest {
 	}
 
 	@Test
-	void evaluateExecutionCondition_targetingDefaultTestIsEnabledWhenJustOpenShiftIsSupported() {
-		// Arrange
-		systemProperties.set("intersmash.junit5.execution.targets", Intersmash.Target.OpenShift.name());
-		XTFConfig.loadConfig();
-		ExtensionContext extensionContext = new EmptyExtensionContext(DefaultTargetTestClass.class);
-		// Act
-		ConditionEvaluationResult conditionEvaluationResult = INTERSMASH_EXECUTION_CONDITION
-				.evaluateExecutionCondition(extensionContext);
-		// Assert
-		Assertions.assertFalse(conditionEvaluationResult.isDisabled(),
-				"The test - which is targeting the default environment - should be enabled");
-	}
-
-	@Test
 	void evaluateExecutionCondition_targetingOpenShiftTestIsDisabledWhenJustKubernetesIsSupported() {
 		// Arrange
-		systemProperties.set("intersmash.junit5.execution.targets", Intersmash.Target.Kubernetes.name());
+		systemProperties.set("intersmash.junit5.execution.targets", "Kubernetes");
 		XTFConfig.loadConfig();
 		ExtensionContext extensionContext = new EmptyExtensionContext(OpenShiftTargetTestClass.class);
 		// Act
@@ -86,7 +66,7 @@ public class IntersmashExecutionConditionTest {
 	@Test
 	void evaluateExecutionCondition_targetingOpenshiftTestIsEnabledWhenJustOpenShiftIsSupported() {
 		// Arrange
-		systemProperties.set("intersmash.junit5.execution.targets", Intersmash.Target.OpenShift.name());
+		systemProperties.set("intersmash.junit5.execution.targets", "OpenShift");
 		XTFConfig.loadConfig();
 		ExtensionContext extensionContext = new EmptyExtensionContext(OpenShiftTargetTestClass.class);
 		// Act
@@ -114,7 +94,7 @@ public class IntersmashExecutionConditionTest {
 	@Test
 	void evaluateExecutionCondition_targetingKubernetesTestIsDisabledWhenJustOpenShiftIsSupported() {
 		// Arrange
-		systemProperties.set("intersmash.junit5.execution.targets", Intersmash.Target.OpenShift.name());
+		systemProperties.set("intersmash.junit5.execution.targets", "OpenShift");
 		XTFConfig.loadConfig();
 		ExtensionContext extensionContext = new EmptyExtensionContext(KubernetesTargetTestClass.class);
 		// Act
@@ -128,7 +108,7 @@ public class IntersmashExecutionConditionTest {
 	@Test
 	void evaluateExecutionCondition_targetingKubernetesTestIsEnabledWhenJustKubernetesIsSupported() {
 		// Arrange
-		systemProperties.set("intersmash.junit5.execution.targets", Intersmash.Target.Kubernetes.name());
+		systemProperties.set("intersmash.junit5.execution.targets", "Kubernetes");
 		XTFConfig.loadConfig();
 		ExtensionContext extensionContext = new EmptyExtensionContext(KubernetesTargetTestClass.class);
 		// Act

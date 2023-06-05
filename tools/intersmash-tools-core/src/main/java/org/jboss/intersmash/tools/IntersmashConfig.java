@@ -15,8 +15,10 @@
  */
 package org.jboss.intersmash.tools;
 
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jboss.intersmash.tools.annotations.Intersmash;
 
@@ -114,8 +116,8 @@ public class IntersmashConfig {
 	private static final String PGSQL_IMAGE_URL = "intersmash.postgresql.image";
 
 	private static final String JUNIT5_EXECUTION_TARGETS = "intersmash.junit5.execution.targets";
-	private static final String JUNIT5_EXECUTION_TARGET_OPENSHIFT = Intersmash.Target.OpenShift.name();
-	private static final String JUNIT5_EXECUTION_TARGET_KUBERNETES = Intersmash.Target.Kubernetes.name();
+	private static final String JUNIT5_EXECUTION_TARGET_OPENSHIFT = "OpenShift";
+	private static final String JUNIT5_EXECUTION_TARGET_KUBERNETES = "Kubernetes";
 
 	public static boolean skipDeploy() {
 		return XTFConfig.get(SKIP_DEPLOY, "false").equals("true");
@@ -391,5 +393,13 @@ public class IntersmashConfig {
 			return new String[] { JUNIT5_EXECUTION_TARGET_OPENSHIFT };
 		}
 		return XTFConfig.get(JUNIT5_EXECUTION_TARGETS).split(",");
+	}
+
+	public static Boolean testEnvironmentSupportsOpenShift() {
+		return Arrays.stream(getJunit5ExecutionTargets()).collect(Collectors.toList()).contains(JUNIT5_EXECUTION_TARGET_OPENSHIFT);
+	}
+
+	public static Boolean testEnvironmentSupportsKubernetes() {
+		return Arrays.stream(getJunit5ExecutionTargets()).collect(Collectors.toList()).contains(JUNIT5_EXECUTION_TARGET_KUBERNETES);
 	}
 }
