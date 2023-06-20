@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.intersmash.tools.provision.k8s;
+package org.jboss.intersmash.provision.k8s;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.jboss.intersmash.tools.application.k8s.KubernetesApplication;
-import org.jboss.intersmash.tools.application.openshift.HasConfigMaps;
-import org.jboss.intersmash.tools.application.openshift.HasSecrets;
-import org.jboss.intersmash.tools.provision.Provisioner;
-import org.jboss.intersmash.tools.provision.openshift.HasPods;
-import org.jboss.intersmash.tools.provision.openshift.Scalable;
-
-import io.fabric8.kubernetes.client.Config;
-import io.fabric8.kubernetes.client.ConfigBuilder;
-import io.fabric8.kubernetes.client.DefaultKubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClient;
+import org.jboss.intersmash.application.k8s.KubernetesApplication;
+import org.jboss.intersmash.application.openshift.HasConfigMaps;
+import org.jboss.intersmash.application.openshift.HasSecrets;
+import org.jboss.intersmash.k8s.client.Kubernetes;
+import org.jboss.intersmash.k8s.client.Kuberneteses;
+import org.jboss.intersmash.provision.Provisioner;
+import org.jboss.intersmash.provision.openshift.HasPods;
+import org.jboss.intersmash.provision.openshift.Scalable;
 
 /**
  * Provisioner that is supposed to deploy an application on Kubernetes.
@@ -36,13 +33,7 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 public interface KubernetesProvisioner<T extends KubernetesApplication> extends Provisioner<T>, Scalable, HasPods {
 
 	//	TODO - check for aq new class of statics like XTF OpenShifts?
-	KubernetesClient kubernetes = newKubernetesClient();
-
-	static KubernetesClient newKubernetesClient() {
-		Config config = new ConfigBuilder()
-				.build();
-		return new DefaultKubernetesClient(config);
-	}
+	Kubernetes kubernetes = Kuberneteses.master();
 
 	@Override
 	default void preDeploy() {

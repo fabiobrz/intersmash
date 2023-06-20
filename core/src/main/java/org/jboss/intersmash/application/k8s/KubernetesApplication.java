@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.intersmash.tools.application.k8s;
+package org.jboss.intersmash.application.k8s;
 
-import org.jboss.intersmash.tools.application.Application;
+import org.jboss.intersmash.application.Application;
 
 /**
  * Interface representing the Application on Kubernetes.
