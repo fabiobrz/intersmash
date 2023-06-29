@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/application/openshift/ActiveMQOperatorApplication.java
 package org.jboss.intersmash.application.openshift;
 
 import java.util.List;
 
 import org.jboss.intersmash.provision.openshift.ActiveMQOperatorProvisioner;
 
+========
+package org.jboss.intersmash.tools.application.operator;
+
+import java.util.List;
+
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/application/operator/ActiveMQOperatorApplication.java
 import io.amq.broker.v1beta1.ActiveMQArtemis;
 import io.amq.broker.v1beta1.ActiveMQArtemisAddress;
 
@@ -27,7 +34,7 @@ import io.amq.broker.v1beta1.ActiveMQArtemisAddress;
  *
  * The application will be deployed by:
  * <ul>
- *     <li>{@link ActiveMQOperatorProvisioner}</li>
+ *     <li>{@link org.jboss.intersmash.tools.provision.operator.ActiveMQOperatorProvisioner}</li>
  * </ul>
  */
 public interface ActiveMQOperatorApplication extends OperatorApplication {

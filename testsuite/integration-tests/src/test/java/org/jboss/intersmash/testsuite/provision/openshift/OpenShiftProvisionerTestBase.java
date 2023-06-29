@@ -54,6 +54,7 @@ import org.jboss.intersmash.test.deployments.DeploymentsProvider;
 import org.jboss.intersmash.test.deployments.TestDeploymentProperties;
 import org.jboss.intersmash.test.deployments.WildflyDeploymentApplicationConfiguration;
 import org.jboss.intersmash.testsuite.IntersmashTestsuiteProperties;
+<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/OpenShiftProvisionerTestBase.java
 import org.jboss.intersmash.util.CommandLineBasedKeystoreGenerator;
 import org.jboss.intersmash.util.openshift.WildflyOpenShiftUtils;
 import org.jboss.intersmash.util.tls.CertificatesUtils;
@@ -61,6 +62,18 @@ import org.jboss.intersmash.util.wildfly.Eap7CliScriptBuilder;
 import org.keycloak.k8s.v2alpha1.keycloakspec.HostnameBuilder;
 import org.keycloak.k8s.v2alpha1.keycloakspec.HttpBuilder;
 import org.keycloak.k8s.v2alpha1.keycloakspec.IngressBuilder;
+=======
+import org.jboss.intersmash.testsuite.openshift.OpenShiftTest;
+import org.jboss.intersmash.tools.IntersmashConfig;
+import org.jboss.intersmash.tools.application.openshift.BootableJarOpenShiftApplication;
+import org.jboss.intersmash.tools.application.operator.KafkaOperatorApplication;
+import org.jboss.intersmash.tools.application.openshift.MysqlImageOpenShiftApplication;
+import org.jboss.intersmash.tools.application.openshift.PostgreSQLImageOpenShiftApplication;
+import org.jboss.intersmash.tools.application.openshift.WildflyImageOpenShiftApplication;
+import org.jboss.intersmash.tools.application.input.BinarySource;
+import org.jboss.intersmash.tools.application.input.BuildInput;
+import org.jboss.intersmash.tools.application.input.BuildInputBuilder;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/OpenShiftProvisionerTestBase.java
 
 import cz.xtf.builder.builders.SecretBuilder;
 import cz.xtf.builder.builders.secret.SecretType;
@@ -84,6 +97,7 @@ import io.strimzi.api.kafka.model.listener.arraylistener.KafkaListenerType;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+@OpenShiftTest
 public class OpenShiftProvisionerTestBase {
 	static final EnvVar TEST_ENV_VAR = new EnvVarBuilder().withName("test-evn-key").withValue("test-evn-value").build();
 	static final String TEST_SECRET_FOO = "foo";

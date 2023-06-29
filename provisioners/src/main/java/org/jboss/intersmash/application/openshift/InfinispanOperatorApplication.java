@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/application/openshift/InfinispanOperatorApplication.java
 package org.jboss.intersmash.application.openshift;
 
 import java.util.List;
@@ -20,6 +21,14 @@ import java.util.List;
 import org.infinispan.v1.Infinispan;
 import org.infinispan.v2alpha1.Cache;
 import org.jboss.intersmash.provision.openshift.InfinispanOperatorProvisioner;
+========
+package org.jboss.intersmash.tools.application.operator;
+
+import java.util.List;
+
+import org.jboss.intersmash.tools.provision.openshift.operator.infinispan.cache.Cache;
+import org.jboss.intersmash.tools.provision.openshift.operator.infinispan.infinispan.Infinispan;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/application/operator/InfinispanOperatorApplication.java
 
 /**
  * End user Application interface which presents Infinispan operator application on OpenShift Container Platform.
@@ -27,7 +36,7 @@ import org.jboss.intersmash.provision.openshift.InfinispanOperatorProvisioner;
  *
  * The application will be deployed by:
  * <ul>
- *     <li>{@link InfinispanOperatorProvisioner}</li>
+ *     <li>{@link org.jboss.intersmash.tools.provision.operator.InfinispanOperatorProvisioner}</li>
  * </ul>
  */
 public interface InfinispanOperatorApplication extends OperatorApplication {

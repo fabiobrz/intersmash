@@ -16,10 +16,19 @@
 package org.jboss.intersmash.testsuite.provision.openshift;
 
 import org.assertj.core.api.Assertions;
+<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/WildflyBootableJarTestCase.java
 import org.jboss.intersmash.application.openshift.BootableJarOpenShiftApplication;
 import org.jboss.intersmash.provision.openshift.BootableJarImageOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.WildflyBootableJarImageOpenShiftProvisioner;
 import org.jboss.intersmash.testsuite.junit5.categories.wildfly.RequiresBootableJarDistribution;
+=======
+import org.jboss.intersmash.testsuite.junit5.categories.NotForProductizedExecutionProfile;
+import org.jboss.intersmash.testsuite.openshift.OpenShiftTest;
+import org.jboss.intersmash.testsuite.openshift.ProjectCreationCapable;
+import org.jboss.intersmash.tools.application.openshift.BootableJarOpenShiftApplication;
+import org.jboss.intersmash.tools.provision.openshift.BootableJarImageOpenShiftProvisioner;
+import org.jboss.intersmash.tools.provision.openshift.WildflyBootableJarImageOpenShiftProvisioner;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/WildflyBootableJarTestCase.java
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -30,8 +39,14 @@ import cz.xtf.core.openshift.OpenShifts;
 import cz.xtf.junit5.annotations.CleanBeforeAll;
 
 @CleanBeforeAll
+<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/WildflyBootableJarTestCase.java
 @RequiresBootableJarDistribution
 public class WildflyBootableJarTestCase {
+=======
+@NotForProductizedExecutionProfile
+@OpenShiftTest
+public class WildflyBootableJarTestCase implements ProjectCreationCapable {
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/WildflyBootableJarTestCase.java
 	private static final OpenShift openShift = OpenShifts.master();
 	private static final BootableJarOpenShiftApplication application = OpenShiftProvisionerTestBase
 			.getWildflyBootableJarOpenShiftApplication();

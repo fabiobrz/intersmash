@@ -13,21 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/KeycloakOperatorProvisioner.java
 package org.jboss.intersmash.provision.openshift;
+========
+package org.jboss.intersmash.tools.provision.operator;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakRealmImportOperatorProvisioner.java
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
+import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import org.assertj.core.util.Lists;
 import org.assertj.core.util.Strings;
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/KeycloakOperatorProvisioner.java
 import org.jboss.intersmash.IntersmashConfig;
 import org.jboss.intersmash.application.openshift.KeycloakOperatorApplication;
-import org.jboss.intersmash.provision.openshift.operator.OperatorProvisioner;
+import org.jboss.intersmash.provision.operator.OperatorProvisioner;
 import org.jboss.intersmash.util.tls.CertificatesUtils;
+========
+import org.jboss.intersmash.tools.IntersmashConfig;
+import org.jboss.intersmash.tools.application.operator.KeycloakRealmImportOperatorApplication;
+import org.jboss.intersmash.tools.provision.Provisioner;
+import org.jboss.intersmash.tools.provision.openshift.WaitersUtil;
+import org.jboss.intersmash.tools.util.tls.CertificatesUtils;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakRealmImportOperatorProvisioner.java
 import org.keycloak.k8s.v2alpha1.Keycloak;
 import org.keycloak.k8s.v2alpha1.KeycloakOperatorKeycloakList;
 import org.keycloak.k8s.v2alpha1.KeycloakOperatorRealmImportList;
@@ -36,24 +51,27 @@ import org.keycloak.k8s.v2alpha1.keycloakspec.Http;
 import org.slf4j.event.Level;
 
 import cz.xtf.core.config.OpenShiftConfig;
-import cz.xtf.core.event.helpers.EventHelper;
-import cz.xtf.core.openshift.OpenShiftWaiters;
 import cz.xtf.core.openshift.OpenShifts;
 import cz.xtf.core.waiting.SimpleWaiter;
 import cz.xtf.core.waiting.failfast.FailFastCheck;
 import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.api.model.Pod;
+import io.fabric8.kubernetes.api.model.Service;
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
 import io.fabric8.kubernetes.api.model.apps.StatefulSet;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
+
 import lombok.NonNull;
+import io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperationsImpl;
+import io.fabric8.openshift.api.model.Route;
 
 /**
  * Keycloak operator provisioner
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/KeycloakOperatorProvisioner.java
 public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOperatorApplication> {
 	private static final String KEYCLOAK_RESOURCE = "keycloaks.k8s.keycloak.org";
 	private static final String KEYCLOAK_REALM_IMPORT_RESOURCE = "keycloakrealmimports.k8s.keycloak.org";
@@ -118,11 +136,29 @@ public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOpe
 	protected String getOperatorChannel() {
 		return IntersmashConfig.keycloakOperatorChannel();
 	}
+========
+public interface KeycloakRealmImportOperatorProvisioner extends
+		OlmOperatorProvisioner<KeycloakRealmImportOperatorApplication>, Provisioner<KeycloakRealmImportOperatorApplication> {
 
-	@Override
-	public void deploy() {
-		ffCheck = FailFastUtils.getFailFastCheck(EventHelper.timeOfLastEventBMOrTestNamespaceOrEpoch(),
-				getApplication().getName());
+	String OPERATOR_ID = IntersmashConfig.keycloakRealmImportOperatorPackageManifest();
+
+	default String getOperatorCatalogSource() {
+		return IntersmashConfig.keycloakRealmImportOperatorCatalogSource();
+	}
+
+	default String getOperatorIndexImage() {
+		return IntersmashConfig.keycloakRealmImportOperatorIndexImage();
+	}
+
+	default String getOperatorChannel() {
+		return IntersmashConfig.keycloakRealmImportOperatorChannel();
+	}
+
+	Service retrieveNamedService(final String serviceName);
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakRealmImportOperatorProvisioner.java
+
+	default void deploy() {
+		FailFastCheck ffCheck = () -> false;
 		// Keycloak Operator codebase contains the name of the Keycloak image to deploy: user can override Keycloak image to
 		// deploy using environment variables in Keycloak Operator Subscription
 		subscribe();
@@ -163,8 +199,7 @@ public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOpe
 		// 1. check externalDatabase exists
 		if (getApplication().getKeycloak().getSpec().getDb() != null) {
 			// 2. Service "spec.db.host" must be installed beforehand
-			new SimpleWaiter(() -> OpenShiftProvisioner.openShift
-					.getService(getApplication().getKeycloak().getSpec().getDb().getHost()) != null)
+			new SimpleWaiter(() -> retrieveNamedService(getApplication().getKeycloak().getSpec().getDb().getHost()) != null)
 					.level(Level.DEBUG).waitFor();
 		}
 
@@ -188,19 +223,22 @@ public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOpe
 		}
 	}
 
-	public void waitFor(Keycloak keycloak) {
+	default void waitFor(Keycloak keycloak) {
 		Long replicas = keycloak.getSpec().getInstances();
 		if (replicas > 0) {
 			// wait for >= 1 pods with label controller-revision-hash=keycloak-d86bb6ddc
 			String controllerRevisionHash = getStatefulSet().getStatus().getUpdateRevision();
-			OpenShiftWaiters.get(OpenShiftProvisioner.openShift, ffCheck)
-					.areExactlyNPodsReady(replicas.intValue(), "controller-revision-hash",
-							controllerRevisionHash)
+			BooleanSupplier bs = () -> retrievePods().stream()
+					.filter(p -> p.getMetadata().getLabels().get("controller-revision-hash") != null
+							&& p.getMetadata().getLabels().get("controller-revision-hash").equals(controllerRevisionHash))
+					.collect(Collectors.toList()).size() == replicas.intValue();
+			new SimpleWaiter(bs, TimeUnit.MINUTES, 2,
+					"Waiting for pods with label \"controller-revision-hash\"=" + controllerRevisionHash + " to be scaled")
 					.waitFor();
 		}
 	}
 
-	public void waitFor(KeycloakRealmImport realmImport) {
+	default void waitFor(KeycloakRealmImport realmImport) {
 		new SimpleWaiter(() -> {
 			Resource<KeycloakRealmImport> res = keycloakRealmImportClient().withName(realmImport.getMetadata().getName());
 			if (Objects.nonNull(res)
@@ -223,7 +261,7 @@ public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOpe
 		}).reason("Wait for KeycloakRealmImport resource to be imported").level(Level.DEBUG).waitFor();
 	}
 
-	private void waitForKeycloakResourceReadiness() {
+	default void waitForKeycloakResourceReadiness() {
 		new SimpleWaiter(
 				() -> keycloak().get().getStatus().getConditions().stream().anyMatch(
 						condition -> "Ready".equalsIgnoreCase(condition.getType())
@@ -242,12 +280,12 @@ public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOpe
 	 * exist on tested cluster.
 	 * @return A concrete {@link Resource} instance representing the {@link org.jboss.intersmash.provision.openshift.operator.keycloak.keycloak.Keycloak} resource definition
 	 */
-	public Resource<Keycloak> keycloak() {
+	default Resource<Keycloak> keycloak() {
 		return keycloakClient()
 				.withName(getApplication().getKeycloak().getMetadata().getName());
 	}
 
-	public List<KeycloakRealmImport> keycloakRealmImports() {
+	default List<KeycloakRealmImport> keycloakRealmImports() {
 		return keycloakRealmImportClient().list().getItems()
 				.stream().filter(
 						realm -> getApplication().getKeycloakRealmImports().stream().map(
@@ -256,24 +294,29 @@ public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOpe
 				.collect(Collectors.toList());
 	}
 
+	StatefulSet retrieveNamedStatefulSet(final String statefulSetName);
+
+	List<Route> retrieveRoutes();
+
 	/**
 	 * @return the underlying StatefulSet which provisions the cluster
 	 */
-	private StatefulSet getStatefulSet() {
+	default StatefulSet getStatefulSet() {
 		final String STATEFUL_SET_NAME = getApplication().getKeycloak().getMetadata().getName();
 		new SimpleWaiter(
-				() -> Objects.nonNull(OpenShiftProvisioner.openShift.getStatefulSet(STATEFUL_SET_NAME)))
+				() -> Objects.nonNull(retrieveNamedStatefulSet(STATEFUL_SET_NAME)))
 				.reason(
 						MessageFormat.format(
 								"Waiting for StatefulSet \"{0}\" to be created for Keycloak \"{1}\".",
 								STATEFUL_SET_NAME,
 								getApplication().getKeycloak().getMetadata().getName()))
 				.level(Level.DEBUG).timeout(60000L).waitFor();
-		return OpenShiftProvisioner.openShift.getStatefulSet(STATEFUL_SET_NAME);
+		return retrieveNamedStatefulSet(STATEFUL_SET_NAME);
 	}
 
-	@Override
-	public void undeploy() {
+	List<Pod> retrieveNamespacePods();
+
+	default void undeploy() {
 		keycloakRealmImports()
 				.forEach(
 						keycloakRealm -> keycloakRealmImportClient()
@@ -288,22 +331,33 @@ public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOpe
 				.reason("Wait for Keycloak instances to be deleted.").level(Level.DEBUG).waitFor();
 
 		// wait for 0 pods
-		OpenShiftWaiters.get(OpenShiftProvisioner.openShift, () -> false)
-				.areExactlyNPodsReady(0, "app", getApplication().getKeycloak().getKind().toLowerCase()).level(Level.DEBUG)
+		BooleanSupplier bs = () -> retrieveNamespacePods().stream()
+				.filter(p -> !com.google.common.base.Strings.isNullOrEmpty(p.getMetadata().getLabels().get("app"))
+						&& p.getMetadata().getLabels().get("app")
+								.equals(getApplication().getKeycloak().getKind().toLowerCase()))
+				.collect(Collectors.toList()).size() == 0;
+		String reason = "Waiting for exactly 0 pods with label \"app\"="
+				+ getApplication().getKeycloak().getKind().toLowerCase() + " to be ready.";
+		new SimpleWaiter(bs, TimeUnit.MINUTES, 2, reason)
+				.level(Level.DEBUG)
 				.waitFor();
+
 		unsubscribe();
 	}
 
-	@Override
-	public void scale(int replicas, boolean wait) {
+	default void scale(int replicas, boolean wait) {
 		String controllerRevisionHash = getStatefulSet().getStatus().getUpdateRevision();
 		Keycloak tmpKeycloak = keycloak().get();
 		Long originalReplicas = tmpKeycloak.getSpec().getInstances();
 		tmpKeycloak.getSpec().setInstances(Integer.toUnsignedLong(replicas));
 		keycloak().replace(tmpKeycloak);
 		if (wait) {
-			OpenShiftWaiters.get(OpenShiftProvisioner.openShift, ffCheck)
-					.areExactlyNPodsReady(replicas, "controller-revision-hash", controllerRevisionHash)
+			BooleanSupplier bs = () -> retrievePods().stream()
+					.filter(p -> p.getMetadata().getLabels().get("controller-revision-hash") != null
+							&& p.getMetadata().getLabels().get("controller-revision-hash").equals(controllerRevisionHash))
+					.collect(Collectors.toList()).size() == replicas;
+			new SimpleWaiter(bs, TimeUnit.MINUTES, 2,
+					"Waiting for pods with label \"controller-revision-hash\"=" + controllerRevisionHash + " to be scaled")
 					.level(Level.DEBUG)
 					.waitFor();
 		}
@@ -320,19 +374,20 @@ public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOpe
 		}
 	}
 
-	@Override
-	public List<Pod> getPods() {
+	default List<Pod> getPods() {
 		String STATEFUL_SET_NAME = getApplication().getKeycloak().getMetadata().getName();
-		StatefulSet statefulSet = OpenShiftProvisioner.openShift.getStatefulSet(STATEFUL_SET_NAME);
+		StatefulSet statefulSet = retrieveNamedStatefulSet(STATEFUL_SET_NAME);
 		return Objects.nonNull(statefulSet)
-				? OpenShiftProvisioner.openShift.getLabeledPods("controller-revision-hash",
-						statefulSet.getStatus().getUpdateRevision())
+				? retrievePods().stream()
+						.filter(p -> p.getMetadata().getLabels().get("controller-revision-hash") != null
+								&& p.getMetadata().getLabels().get("controller-revision-hash")
+										.equals(statefulSet.getStatus().getUpdateRevision()))
+						.collect(Collectors.toList())
 				: Lists.emptyList();
 	}
 
-	@Override
-	public URL getURL() {
-		String host = OpenShiftProvisioner.openShift.routes().list().getItems()
+	default URL getURL() {
+		String host = retrieveRoutes()
 				.stream().filter(
 						route -> route.getMetadata().getName().startsWith(
 								keycloak().get().getMetadata().getName())
@@ -355,5 +410,39 @@ public class KeycloakOperatorProvisioner extends OperatorProvisioner<KeycloakOpe
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(String.format("Keycloak operator External URL \"%s\" is malformed.", host), e);
 		}
+	}
+
+	String KEYCLOAK_RESOURCE = "keycloaks.k8s.keycloak.org";
+
+	String KEYCLOAK_REALM_RESOURCE = "keycloakrealmimports.k8s.keycloak.org";
+
+	HasMetadataOperationsImpl<Keycloak, KubernetesResourceList<Keycloak>> keycloaksCustomResourcesClient(
+			CustomResourceDefinitionContext crdc);
+
+	NonNamespaceOperation<Keycloak, KubernetesResourceList<Keycloak>, Resource<Keycloak>> keycloakClient();
+
+	HasMetadataOperationsImpl<KeycloakRealmImport, KubernetesResourceList<KeycloakRealmImport>> keycloakRealmImportsCustomResourcesClient(
+			CustomResourceDefinitionContext crdc);
+
+	NonNamespaceOperation<KeycloakRealmImport, KubernetesResourceList<KeycloakRealmImport>, Resource<KeycloakRealmImport>> keycloakRealmImportClient();
+
+	default MixedOperation<Keycloak, KubernetesResourceList<Keycloak>, Resource<Keycloak>> buildKeycloakClient() {
+		CustomResourceDefinition crd = retrieveCustomResourceDefinitions().withName(KEYCLOAK_RESOURCE).get();
+		CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
+		if (!retrieveCustomResourceDefinitions().list().getItems().contains(KEYCLOAK_RESOURCE)) {
+			throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
+					KEYCLOAK_RESOURCE, KeycloakOperatorProvisioner.operatorId()));
+		}
+		return keycloaksCustomResourcesClient(crdc);
+	}
+
+	default MixedOperation<KeycloakRealmImport, KubernetesResourceList<KeycloakRealmImport>, Resource<KeycloakRealmImport>> buildKeycloakRealmImportClient() {
+		CustomResourceDefinition crd = retrieveCustomResourceDefinitions().withName(KEYCLOAK_REALM_RESOURCE).get();
+		CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
+		if (!retrieveCustomResourceDefinitions().list().getItems().contains(KEYCLOAK_REALM_RESOURCE)) {
+			throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
+					KEYCLOAK_REALM_RESOURCE, KeycloakOperatorProvisioner.operatorId()));
+		}
+		return keycloakRealmImportsCustomResourcesClient(crdc);
 	}
 }

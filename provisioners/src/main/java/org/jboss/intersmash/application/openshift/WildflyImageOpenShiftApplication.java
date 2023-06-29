@@ -21,10 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.intersmash.application.openshift.input.BinarySourceBuilder;
-import org.jboss.intersmash.application.openshift.input.BuildInput;
-import org.jboss.intersmash.application.openshift.input.BuildInputBuilder;
-import org.jboss.intersmash.application.openshift.input.GitSourceBuilder;
+import org.jboss.intersmash.application.input.BinarySourceBuilder;
+import org.jboss.intersmash.application.input.BuildInput;
+import org.jboss.intersmash.application.input.BuildInputBuilder;
 
 import cz.xtf.builder.builders.pod.PersistentVolumeClaim;
 import cz.xtf.builder.builders.pod.VolumeMount;
@@ -39,7 +38,7 @@ public interface WildflyImageOpenShiftApplication extends WildflyOpenShiftApplic
 	/**
 	 * Use the {@link BuildInputBuilder} to get instances implementing the {@link BuildInput} interface.
 	 *
-	 * @see GitSourceBuilder
+	 * @see org.jboss.intersmash.application.input.GitSourceBuilder
 	 * @see BinarySourceBuilder
 	 * @return {@link BuildInput} instance for application
 	 */

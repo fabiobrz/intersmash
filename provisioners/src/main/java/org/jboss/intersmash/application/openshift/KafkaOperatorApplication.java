@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/application/openshift/KafkaOperatorApplication.java
 package org.jboss.intersmash.application.openshift;
 
 import java.util.List;
 
 import org.jboss.intersmash.provision.openshift.KafkaOperatorProvisioner;
 
+========
+package org.jboss.intersmash.tools.application.operator;
+
+import java.util.List;
+
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/application/operator/KafkaOperatorApplication.java
 import io.strimzi.api.kafka.model.Kafka;
 import io.strimzi.api.kafka.model.KafkaTopic;
 import io.strimzi.api.kafka.model.KafkaUser;
@@ -28,7 +35,7 @@ import io.strimzi.api.kafka.model.KafkaUser;
  * <p>
  * The application will be deployed by:
  * <ul>
- *     <li>{@link KafkaOperatorProvisioner}</li>
+ *     <li>{@link org.jboss.intersmash.tools.provision.operator.KafkaOperatorProvisioner}</li>
  * </ul>
  */
 public interface KafkaOperatorApplication extends OperatorApplication {

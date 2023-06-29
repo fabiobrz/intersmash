@@ -13,23 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/ActiveMQOperatorProvisioner.java
 package org.jboss.intersmash.provision.openshift;
+========
+package org.jboss.intersmash.tools.provision.operator;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/ActiveMQOperatorProvisioner.java
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/ActiveMQOperatorProvisioner.java
 import org.jboss.intersmash.IntersmashConfig;
 import org.jboss.intersmash.application.openshift.ActiveMQOperatorApplication;
-import org.jboss.intersmash.provision.openshift.operator.OperatorProvisioner;
 import org.jboss.intersmash.provision.openshift.operator.activemq.address.ActiveMQArtemisAddressList;
 import org.jboss.intersmash.provision.openshift.operator.activemq.broker.ActiveMQArtemisList;
+========
+import org.jboss.intersmash.tools.IntersmashConfig;
+import org.jboss.intersmash.tools.application.operator.ActiveMQOperatorApplication;
+import org.jboss.intersmash.tools.provision.Provisioner;
+import org.jboss.intersmash.tools.provision.openshift.OpenShiftProvisioner;
+import org.jboss.intersmash.tools.provision.openshift.operator.activemq.address.ActiveMQArtemisAddressList;
+import org.jboss.intersmash.tools.provision.openshift.operator.activemq.broker.ActiveMQArtemisList;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/ActiveMQOperatorProvisioner.java
 import org.slf4j.event.Level;
 
-import cz.xtf.core.config.OpenShiftConfig;
-import cz.xtf.core.event.helpers.EventHelper;
 import cz.xtf.core.openshift.OpenShiftWaiters;
-import cz.xtf.core.openshift.OpenShifts;
 import cz.xtf.core.waiting.SimpleWaiter;
+import cz.xtf.core.waiting.failfast.FailFastCheck;
 import io.amq.broker.v1beta1.ActiveMQArtemis;
 import io.amq.broker.v1beta1.ActiveMQArtemisAddress;
 import io.fabric8.kubernetes.api.model.DeletionPropagation;
@@ -39,49 +49,53 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
-import lombok.NonNull;
+import io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperationsImpl;
 
 /**
  * ActiveMQ Operator based provisioner
  */
-public class ActiveMQOperatorProvisioner extends OperatorProvisioner<ActiveMQOperatorApplication> {
-	private final static String ACTIVE_MQ_ARTEMIS_RESOURCE = "activemqartemises.broker.amq.io";
-	private static NonNamespaceOperation<ActiveMQArtemis, ActiveMQArtemisList, Resource<ActiveMQArtemis>> ACTIVE_MQ_ARTEMISES_CLIENT;
+public interface ActiveMQOperatorProvisioner extends
+		OlmOperatorProvisioner<ActiveMQOperatorApplication>, Provisioner<ActiveMQOperatorApplication> {
 
-	private final static String ACTIVE_MQ_ARTEMIS_ADDRESS_RESOURCE = "activemqartemisaddresses.broker.amq.io";
-	private static NonNamespaceOperation<ActiveMQArtemisAddress, ActiveMQArtemisAddressList, Resource<ActiveMQArtemisAddress>> ACTIVE_MQ_ARTEMIS_ADDRESSES_CLIENT;
-
-	//	private final static String ACTIVE_MQ_ARTEMIS_SCALEDOWN_RESOURCE = "activemqartemisscaledowns.broker.amq.io"; // TODO add on demand
-
-	private static final String OPERATOR_ID = IntersmashConfig.activeMQOperatorPackageManifest();
-
-	public ActiveMQOperatorProvisioner(@NonNull ActiveMQOperatorApplication activeMqOperatorApplication) {
-		super(activeMqOperatorApplication, OPERATOR_ID);
+	// this is the packagemanifest for the operator;
+	// you can get it with command:
+	// oc get packagemanifest <bundle> -o template --template='{{ .metadata.name }}'
+	static String operatorId() {
+		return IntersmashConfig.activeMQOperatorPackageManifest();
 	}
 
-	public static String getOperatorId() {
-		return OPERATOR_ID;
+	// this is the name of the CustomResourceDefinition(s)
+	// you can get it with command:
+	// oc get crd <group>> -o template --template='{{ .metadata.name }}'
+	default String activeMQCustomResourceDefinitionName() {
+		return "activemqartemises.broker.amq.io";
 	}
+
+	HasMetadataOperationsImpl<ActiveMQArtemisAddress, ActiveMQArtemisAddressList> activeMQArtemisAddressesCustomResourcesClient(
+			CustomResourceDefinitionContext crdc);
+
+	HasMetadataOperationsImpl<ActiveMQArtemis, ActiveMQArtemisList> activeMQArtemisCustomResourcesClient(
+			CustomResourceDefinitionContext crdc);
+
+	NonNamespaceOperation<ActiveMQArtemisAddress, ActiveMQArtemisAddressList, Resource<ActiveMQArtemisAddress>> activeMQArtemisAddressesClient();
+
+	NonNamespaceOperation<ActiveMQArtemis, ActiveMQArtemisList, Resource<ActiveMQArtemis>> activeMQArtemisesClient();
 
 	/**
-	 * Get a client capable of working with {@link #ACTIVE_MQ_ARTEMIS_ADDRESS_RESOURCE} custom resource.
+	 * Get a client capable of working with {@link #activeMQCustomResourceDefinitionName()} custom resource.
 	 *
-	 * @return client for operations with {@link #ACTIVE_MQ_ARTEMIS_ADDRESS_RESOURCE} custom resource
+	 * @return client for operations with {@link #activeMQCustomResourceDefinitionName()} custom resource
 	 */
-	public NonNamespaceOperation<ActiveMQArtemisAddress, ActiveMQArtemisAddressList, Resource<ActiveMQArtemisAddress>> activeMQArtemisAddressesClient() {
-		if (ACTIVE_MQ_ARTEMIS_ADDRESSES_CLIENT == null) {
-			CustomResourceDefinition crd = OpenShifts.admin().apiextensions().v1().customResourceDefinitions()
-					.withName(ACTIVE_MQ_ARTEMIS_ADDRESS_RESOURCE).get();
-			CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
-			if (!getCustomResourceDefinitions().contains(ACTIVE_MQ_ARTEMIS_ADDRESS_RESOURCE)) {
-				throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
-						ACTIVE_MQ_ARTEMIS_ADDRESS_RESOURCE, OPERATOR_ID));
-			}
-			MixedOperation<ActiveMQArtemisAddress, ActiveMQArtemisAddressList, Resource<ActiveMQArtemisAddress>> addressesClient = OpenShifts
-					.master().newHasMetadataOperation(crdc, ActiveMQArtemisAddress.class, ActiveMQArtemisAddressList.class);
-			ACTIVE_MQ_ARTEMIS_ADDRESSES_CLIENT = addressesClient.inNamespace(OpenShiftConfig.namespace());
+
+	default MixedOperation<ActiveMQArtemisAddress, ActiveMQArtemisAddressList, Resource<ActiveMQArtemisAddress>> buildActiveMQArtemisAddressesClient() {
+		CustomResourceDefinition crd = retrieveCustomResourceDefinitions()
+				.withName(activeMQCustomResourceDefinitionName()).get();
+		CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
+		if (!retrieveCustomResourceDefinitions().list().getItems().contains(activeMQCustomResourceDefinitionName())) {
+			throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
+					activeMQCustomResourceDefinitionName(), operatorId()));
 		}
-		return ACTIVE_MQ_ARTEMIS_ADDRESSES_CLIENT;
+		return activeMQArtemisAddressesCustomResourcesClient(crdc);
 	}
 
 	/**
@@ -91,7 +105,7 @@ public class ActiveMQOperatorProvisioner extends OperatorProvisioner<ActiveMQOpe
 	 * @param name name of the activeMQArtemisAddress custom resource
 	 * @return A concrete {@link Resource} instance representing the {@link ActiveMQArtemisAddress} resource definition
 	 */
-	public Resource<ActiveMQArtemisAddress> activeMQArtemisAddress(String name) {
+	default Resource<ActiveMQArtemisAddress> activeMQArtemisAddress(String name) {
 		return activeMQArtemisAddressesClient().withName(name);
 	}
 
@@ -102,7 +116,7 @@ public class ActiveMQOperatorProvisioner extends OperatorProvisioner<ActiveMQOpe
 	 * Use get() to get the actual object, or null in case it does not exist on tested cluster.
 	 * @return A list of {@link Resource} instances representing the {@link ActiveMQArtemisAddress} resource definitions
 	 */
-	public List<Resource<ActiveMQArtemisAddress>> activeMQArtemisAddresses() {
+	default List<Resource<ActiveMQArtemisAddress>> activeMQArtemisAddresses() {
 		ActiveMQOperatorApplication activeMqOperatorApplication = getApplication();
 		return activeMqOperatorApplication.getActiveMQArtemisAddresses().stream()
 				.map(activeMQArtemisAddress -> activeMQArtemisAddress.getMetadata().getName())
@@ -111,24 +125,20 @@ public class ActiveMQOperatorProvisioner extends OperatorProvisioner<ActiveMQOpe
 	}
 
 	/**
-	 * Get a client capable of working with {@link #ACTIVE_MQ_ARTEMIS_RESOURCE} custom resource.
+	 * Get a client capable of working with {@link #activeMQCustomResourceDefinitionName()} custom resource.
 	 *
-	 * @return client for operations with {@link #ACTIVE_MQ_ARTEMIS_RESOURCE} custom resource
+	 * @return client for operations with {@link #activeMQCustomResourceDefinitionName()} custom resource
 	 */
-	public NonNamespaceOperation<ActiveMQArtemis, ActiveMQArtemisList, Resource<ActiveMQArtemis>> activeMQArtemisesClient() {
-		if (ACTIVE_MQ_ARTEMISES_CLIENT == null) {
-			CustomResourceDefinition crd = OpenShifts.admin().apiextensions().v1().customResourceDefinitions()
-					.withName(ACTIVE_MQ_ARTEMIS_RESOURCE).get();
-			CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
-			if (!getCustomResourceDefinitions().contains(ACTIVE_MQ_ARTEMIS_RESOURCE)) {
-				throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
-						ACTIVE_MQ_ARTEMIS_RESOURCE, OPERATOR_ID));
-			}
-			MixedOperation<ActiveMQArtemis, ActiveMQArtemisList, Resource<ActiveMQArtemis>> amqClient = OpenShifts
-					.master().newHasMetadataOperation(crdc, ActiveMQArtemis.class, ActiveMQArtemisList.class);
-			ACTIVE_MQ_ARTEMISES_CLIENT = amqClient.inNamespace(OpenShiftConfig.namespace());
+	default MixedOperation<ActiveMQArtemis, ActiveMQArtemisList, Resource<ActiveMQArtemis>> buildActiveMQArtemisesClient() {
+		CustomResourceDefinition crd = retrieveCustomResourceDefinitions()
+				.withName(activeMQCustomResourceDefinitionName()).get();
+		CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
+		if (!retrieveCustomResourceDefinitions().list().getItems().contains(activeMQCustomResourceDefinitionName())) {
+			throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
+					activeMQCustomResourceDefinitionName(), operatorId()));
 		}
-		return ACTIVE_MQ_ARTEMISES_CLIENT;
+		return activeMQArtemisCustomResourcesClient(crdc);
+
 	}
 
 	/**
@@ -136,14 +146,13 @@ public class ActiveMQOperatorProvisioner extends OperatorProvisioner<ActiveMQOpe
 	 * exist on tested cluster.
 	 * @return A concrete {@link Resource} instance representing the {@link ActiveMQArtemis} resource definition
 	 */
-	public Resource<ActiveMQArtemis> activeMQArtemis() {
+	default Resource<ActiveMQArtemis> activeMQArtemis() {
 		return activeMQArtemisesClient().withName(getApplication().getActiveMQArtemis().getMetadata().getName());
 	}
 
 	@Override
-	public void deploy() {
-		ffCheck = FailFastUtils.getFailFastCheck(EventHelper.timeOfLastEventBMOrTestNamespaceOrEpoch(),
-				getApplication().getName());
+	default void deploy() {
+		FailFastCheck ffCheck = () -> false;
 		subscribe();
 
 		int replicas = getApplication().getActiveMQArtemis().getSpec().getDeploymentPlan().getSize();
@@ -177,7 +186,8 @@ public class ActiveMQOperatorProvisioner extends OperatorProvisioner<ActiveMQOpe
 	}
 
 	@Override
-	public void undeploy() {
+	default void undeploy() {
+		FailFastCheck ffCheck = () -> false;
 		// delete the resources
 		activeMQArtemisAddresses().forEach(address -> address.withPropagationPolicy(DeletionPropagation.FOREGROUND).delete());
 
@@ -194,8 +204,8 @@ public class ActiveMQOperatorProvisioner extends OperatorProvisioner<ActiveMQOpe
 		unsubscribe();
 	}
 
-	@Override
-	public void scale(int replicas, boolean wait) {
+	default void scale(int replicas, boolean wait) {
+		FailFastCheck ffCheck = () -> false;
 		ActiveMQArtemis tmpBroker = activeMQArtemis().get();
 		tmpBroker.getSpec().getDeploymentPlan().setSize(replicas);
 		activeMQArtemis().replace(tmpBroker);
@@ -217,33 +227,17 @@ public class ActiveMQOperatorProvisioner extends OperatorProvisioner<ActiveMQOpe
 		}
 	}
 
-	/**
-	 * Get the provisioned application service related Pods
-	 * <p>
-	 * Currently blocked by the fact that Pod Status pod names do not reflect the reality
-	 * <p>
-	 * Once these issues are resolved, we can use the ready pod names returned by
-	 * {@code ActiveMQArtemisStatus.getPodStatus()} to create the List with pods maintained by the provisioner.
-	 *
-	 * @return A list of related {@link Pod} instances
-	 */
-	@Override
-	public List<Pod> getPods() {
-		throw new UnsupportedOperationException("To be implemented!");
-	}
+	List<Pod> getPods();
 
-	@Override
-	protected String getOperatorCatalogSource() {
+	default String getOperatorCatalogSource() {
 		return IntersmashConfig.activeMQOperatorCatalogSource();
 	}
 
-	@Override
-	protected String getOperatorIndexImage() {
+	default String getOperatorIndexImage() {
 		return IntersmashConfig.activeMQOperatorIndexImage();
 	}
 
-	@Override
-	protected String getOperatorChannel() {
+	default String getOperatorChannel() {
 		return IntersmashConfig.activeMQOperatorChannel();
 	}
 }

@@ -18,7 +18,7 @@ package org.jboss.intersmash.provision.k8s;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.jboss.intersmash.application.k8s.KubernetesApplication;
+import org.jboss.intersmash.application.Application;
 import org.jboss.intersmash.application.openshift.HasConfigMaps;
 import org.jboss.intersmash.application.openshift.HasSecrets;
 import org.jboss.intersmash.k8s.client.Kubernetes;
@@ -30,9 +30,8 @@ import org.jboss.intersmash.provision.openshift.Scalable;
 /**
  * Provisioner that is supposed to deploy an application on Kubernetes.
  */
-public interface KubernetesProvisioner<T extends KubernetesApplication> extends Provisioner<T>, Scalable, HasPods {
+public interface KubernetesProvisioner<T extends Application> extends Provisioner<T>, Scalable, HasPods {
 
-	//	TODO - check for aq new class of statics like XTF OpenShifts?
 	Kubernetes kubernetes = Kuberneteses.master();
 
 	@Override

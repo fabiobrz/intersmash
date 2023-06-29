@@ -20,7 +20,7 @@ import org.junit.platform.launcher.TestPlan;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ProjectCreator
+public class KubernetesNamespaceCreator
 		implements TestExecutionListener, BeforeAllCallback, AfterAllCallback, PostDiscoveryFilter {
 
 	@Override

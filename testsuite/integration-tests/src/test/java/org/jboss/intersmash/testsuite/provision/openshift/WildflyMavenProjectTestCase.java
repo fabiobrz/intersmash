@@ -23,7 +23,13 @@ import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
+<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/WildflyMavenProjectTestCase.java
 import org.jboss.intersmash.provision.openshift.WildflyImageOpenShiftProvisioner;
+=======
+import org.jboss.intersmash.testsuite.openshift.OpenShiftTest;
+import org.jboss.intersmash.testsuite.openshift.ProjectCreationCapable;
+import org.jboss.intersmash.tools.provision.openshift.WildflyImageOpenShiftProvisioner;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/WildflyMavenProjectTestCase.java
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -44,7 +50,8 @@ import io.fabric8.kubernetes.api.model.Service;
  * inside the builder image via the s2i binary build process.
  */
 @CleanBeforeAll
-public class WildflyMavenProjectTestCase {
+@OpenShiftTest
+public class WildflyMavenProjectTestCase implements ProjectCreationCapable {
 	private static final OpenShift openShift = OpenShifts.master();
 	private static final OpenShiftProvisionerTestBase.StaticWildflyImageOpenShiftDeploymentApplication application = OpenShiftProvisionerTestBase
 			.getWildflyOpenShiftLocalBinarySourceApplication();

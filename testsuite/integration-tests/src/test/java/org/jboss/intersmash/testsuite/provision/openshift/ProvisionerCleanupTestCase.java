@@ -29,7 +29,7 @@ import org.jboss.intersmash.provision.openshift.PostgreSQLTemplateOpenShiftProvi
 import org.jboss.intersmash.provision.openshift.RhSsoTemplateOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.WildflyBootableJarImageOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.WildflyImageOpenShiftProvisioner;
-import org.jboss.intersmash.provision.openshift.operator.OperatorProvisioner;
+import org.jboss.intersmash.provision.operator.OperatorProvisioner;
 import org.jboss.intersmash.provision.openshift.operator.resources.OperatorGroup;
 import org.jboss.intersmash.testsuite.IntersmashTestsuiteProperties;
 import org.jboss.intersmash.testsuite.junit5.categories.NotForCommunityExecutionProfile;

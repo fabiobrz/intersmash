@@ -22,10 +22,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/BootableJarImageOpenShiftProvisioner.java
 import org.jboss.intersmash.IntersmashConfig;
 import org.jboss.intersmash.application.openshift.BootableJarOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.input.BinarySource;
 import org.jboss.intersmash.application.openshift.input.BuildInput;
+=======
+import org.jboss.intersmash.tools.IntersmashConfig;
+import org.jboss.intersmash.tools.application.input.BinarySource;
+import org.jboss.intersmash.tools.application.input.BuildInput;
+import org.jboss.intersmash.tools.application.openshift.BootableJarOpenShiftApplication;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/openshift/BootableJarImageOpenShiftProvisioner.java
 import org.slf4j.event.Level;
 
 import cz.xtf.builder.builders.ApplicationBuilder;

@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.wildfly.v1alpha1.WildFlyServer;
 
+import cz.xtf.core.config.OpenShiftConfig;
+
 /**
  * Basic verification of wildflyservers.wildfly.org resource.
  */
@@ -40,12 +42,21 @@ public class WildFlyServersTestCase {
 				.build();
 
 		// write test
+<<<<<<< HEAD:provisioners/src/test/java/org/jboss/intersmash/provision/openshift/operator/wildfly/WildFlyServersTestCase.java
 		File yaml = OpenShiftResource.save(wildFlyServer);
+=======
+		File yaml = new OperatorGroup(OpenShiftConfig.namespace()).save();
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/test/java/org/jboss/intersmash/tools/provision/openshift/operator/resources/OpenShiftResourceTestCase.java
 		// read test
 		WildFlyServer testServer = new WildFlyServer();
 		OpenShiftResource.load(yaml, WildFlyServer.class, testServer);
 		//
+<<<<<<< HEAD:provisioners/src/test/java/org/jboss/intersmash/provision/openshift/operator/wildfly/WildFlyServersTestCase.java
 		Assertions.assertEquals(wildFlyServer, testServer,
 				"OpenShift resource (WildflyServer) does not equal after serialization into yaml file and deserialization back to an object.");
+=======
+		Assertions.assertEquals(new OperatorGroup(OpenShiftConfig.namespace()), testGroup,
+				"OpenShift resource (OperatorGroup) does not equal after serialization into yaml file and deserialization back to an object.");
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/test/java/org/jboss/intersmash/tools/provision/openshift/operator/resources/OpenShiftResourceTestCase.java
 	}
 }

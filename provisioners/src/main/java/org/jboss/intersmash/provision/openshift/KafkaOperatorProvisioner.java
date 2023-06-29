@@ -13,53 +13,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/KafkaOperatorProvisioner.java
 package org.jboss.intersmash.provision.openshift;
+========
+package org.jboss.intersmash.tools.provision.operator;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KafkaOperatorProvisioner.java
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BooleanSupplier;
+import java.util.stream.Collectors;
 
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/KafkaOperatorProvisioner.java
 import org.jboss.intersmash.IntersmashConfig;
 import org.jboss.intersmash.application.openshift.KafkaOperatorApplication;
-import org.jboss.intersmash.provision.openshift.operator.OperatorProvisioner;
+========
+import org.jboss.intersmash.tools.IntersmashConfig;
+import org.jboss.intersmash.tools.application.operator.KafkaOperatorApplication;
+import org.jboss.intersmash.tools.provision.Provisioner;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KafkaOperatorProvisioner.java
 import org.slf4j.event.Level;
 
-import cz.xtf.core.config.OpenShiftConfig;
-import cz.xtf.core.event.helpers.EventHelper;
-import cz.xtf.core.openshift.OpenShiftWaiters;
 import cz.xtf.core.waiting.SimpleWaiter;
+import cz.xtf.core.waiting.failfast.FailFastCheck;
 import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.strimzi.api.kafka.Crds;
 import io.strimzi.api.kafka.KafkaList;
 import io.strimzi.api.kafka.KafkaTopicList;
 import io.strimzi.api.kafka.KafkaUserList;
 import io.strimzi.api.kafka.model.Kafka;
 import io.strimzi.api.kafka.model.KafkaTopic;
 import io.strimzi.api.kafka.model.KafkaUser;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Deploys an application that implements {@link KafkaOperatorApplication} interface and which is extended by this
  * class.
  */
-@Slf4j
-public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorApplication> {
 
-	private static final String OPERATOR_ID = IntersmashConfig.kafkaOperatorPackageManifest();
+public interface KafkaOperatorProvisioner extends
+		OlmOperatorProvisioner<KafkaOperatorApplication>, Provisioner<KafkaOperatorApplication> {
 
-	public KafkaOperatorProvisioner(@NonNull KafkaOperatorApplication kafkaOperatorApplication) {
-		super(kafkaOperatorApplication, OPERATOR_ID);
+	// this is the packagemanifest for the hyperfoil operator;
+	// you can get it with command:
+	// oc get packagemanifest hyperfoil-bundle -o template --template='{{ .metadata.name }}'
+	static String operatorId() {
+		return IntersmashConfig.kafkaOperatorPackageManifest();
 	}
 
-	/**
-	 * Get a client capable of working with {@link Kafka} custom resource on our OpenShift instance.
-	 *
-	 * @return client for operations with {@link Kafka} custom resource on our OpenShift instance
-	 */
-	public NonNamespaceOperation<Kafka, KafkaList, Resource<Kafka>> kafkasClient() {
-		return Crds.kafkaOperation(OpenShiftProvisioner.openShift).inNamespace(OpenShiftConfig.namespace());
+	// this is the name of the Wildfly CustomResourceDefinition
+	// you can get it with command:
+	// oc get crd wildflyservers.wildfly.org -o template --template='{{ .metadata.name }}'
+	default String wildflyCustomResourceDefinitionName() {
+		return "wildflyservers.wildfly.org";
 	}
 
 	/**
@@ -69,32 +76,32 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 	 *
 	 * @return returns Kafka cluster resource on OpenShift instance that is tied with our relevant Application only
 	 */
-	public Resource<Kafka> kafka() {
+	default Resource<Kafka> kafka() {
 		return kafkasClient().withName(getApplication().getKafka().getMetadata().getName());
 	}
+
+	/**
+	 * Get a client capable of working with {@link Kafka} custom resource on our OpenShift instance.
+	 *
+	 * @return client for operations with {@link Kafka} custom resource on our OpenShift instance
+	 */
+	NonNamespaceOperation<Kafka, KafkaList, Resource<Kafka>> kafkasClient();
 
 	/**
 	 * Get a client capable of working with {@link KafkaUser} custom resource on our OpenShift instance.
 	 *
 	 * @return client for operations with {@link KafkaUser} custom resource on our OpenShift instance
 	 */
-	public NonNamespaceOperation<KafkaUser, KafkaUserList, Resource<KafkaUser>> kafkasUserClient() {
-		return Crds.kafkaUserOperation(OpenShiftProvisioner.openShift).inNamespace(OpenShiftConfig.namespace());
-	}
+	NonNamespaceOperation<KafkaUser, KafkaUserList, Resource<KafkaUser>> kafkasUserClient();
 
 	/**
 	 * Get a client capable of working with {@link KafkaTopic} custom resource on our OpenShift instance.
 	 *
 	 * @return client for operations with {@link KafkaTopic} custom resource on our OpenShift instance
 	 */
-	public NonNamespaceOperation<KafkaTopic, KafkaTopicList, Resource<KafkaTopic>> kafkasTopicClient() {
-		return Crds.topicOperation(OpenShiftProvisioner.openShift).inNamespace(OpenShiftConfig.namespace());
-	}
+	NonNamespaceOperation<KafkaTopic, KafkaTopicList, Resource<KafkaTopic>> kafkasTopicClient();
 
-	@Override
-	public void deploy() {
-		ffCheck = FailFastUtils.getFailFastCheck(EventHelper.timeOfLastEventBMOrTestNamespaceOrEpoch(),
-				getApplication().getName());
+	default void deploy() {
 
 		subscribe();
 
@@ -125,7 +132,8 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 		}
 	}
 
-	private void waitForKafkaClusterCreation() {
+	default void waitForKafkaClusterCreation() {
+		FailFastCheck ffCheck = () -> false;
 		int expectedReplicas = getApplication().getKafka().getSpec().getKafka().getReplicas();
 		new SimpleWaiter(() -> kafka().get() != null)
 				.failFast(ffCheck)
@@ -173,20 +181,22 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 				.waitFor();
 	}
 
+	void logMessage(final String message, Level l);
+
 	private void listKafkaClusterCreationConditions(boolean success, String message) {
 		String completeMessage = message + " Here is the list of instance conditions found there:";
 		if (success) {
-			log.info(completeMessage);
+			logMessage(completeMessage, Level.INFO);
 		} else {
-			log.error(completeMessage);
+			logMessage(completeMessage, Level.ERROR);
 		}
 
 		kafka().get().getStatus().getConditions().stream().forEach(c -> {
 			String conditionMessage = "    |- " + c.getType() + ":" + c.getStatus() + ":" + c.getMessage();
 			if (success) {
-				log.info(conditionMessage);
+				logMessage(conditionMessage, Level.INFO);
 			} else {
-				log.error(conditionMessage);
+				logMessage(conditionMessage, Level.ERROR);
 			}
 		});
 	}
@@ -247,15 +257,13 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 				"Waiting for user '" + userName + "' condition to be 'Ready'").level(Level.DEBUG).waitFor();
 	}
 
-	@Override
-	public void undeploy() {
+	default void undeploy() {
 		// delete the resources
 
 		if (getApplication().getUsers() != null) {
 			if (kafkasUserClient().delete().isEmpty()) {
 				log.warn("Wasn't able to remove all relevant 'Kafka User' resources created for '" + getApplication().getName()
-						+ "' instance!");
-			}
+						+ "' instance!");}
 
 			new SimpleWaiter(() -> kafkasUserClient().list().getItems().isEmpty()).level(Level.DEBUG).waitFor();
 		}
@@ -263,8 +271,7 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 		if (getApplication().getTopics() != null) {
 			if (kafkasTopicClient().delete().isEmpty()) {
 				log.warn("Wasn't able to remove all relevant 'Kafka Topic' resources created for '" + getApplication().getName()
-						+ "' instance!");
-			}
+						+ "' instance!");}
 
 			new SimpleWaiter(() -> kafkasTopicClient().list().getItems().isEmpty()).level(Level.DEBUG).waitFor();
 		}
@@ -277,34 +284,27 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 
 			new SimpleWaiter(() -> getKafkaPods().size() == 0).level(Level.DEBUG).waitFor();
 		}
-
 		unsubscribe();
-
-		OpenShiftWaiters.get(OpenShiftProvisioner.openShift, ffCheck)
-				.areExactlyNPodsReady(0, "name", getApplication().getName() + "-cluster-operator")
-				.level(Level.DEBUG).waitFor();
+		BooleanSupplier bs = () -> retrievePods().stream()
+				.filter(p -> p.getMetadata().getLabels().get("name") != null
+						&& p.getMetadata().getLabels().get("name").equals(getApplication().getName() + "-cluster-operator"))
+				.collect(Collectors.toList()).size() == 0;
+		new SimpleWaiter(bs, TimeUnit.MINUTES, 2,
+				"Waiting for 0 pods with label \"name\"=" + getApplication().getName() + "-cluster-operator")
+				.waitFor();
 	}
 
-	public static String getOperatorId() {
-		return OPERATOR_ID;
-	}
-
-	public KafkaUserList getUsers() {
+	default KafkaUserList getUsers() {
 		return kafkasUserClient().list();
 	}
 
-	public KafkaTopicList getTopics() {
+	default KafkaTopicList getTopics() {
 		return kafkasTopicClient().list();
 	}
 
-	@Override
-	public List<Pod> getPods() {
-		return OpenShiftProvisioner.openShift.getLabeledPods("strimzi.io/cluster", getApplication().getName());
-	}
+	List<Pod> getPods();
 
-	public List<Pod> getClusterOperatorPods() {
-		return OpenShiftProvisioner.openShift.getLabeledPods("strimzi.io/kind", "cluster-operator");
-	}
+	List<Pod> getClusterOperatorPods();
 
 	/**
 	 * Get list of all Kafka pods on OpenShift instance with regards this Kafka cluster.
@@ -313,8 +313,8 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 	 * But we list only Kafka related pods here.
 	 * @return list of Kafka pods
 	 */
-	public List<Pod> getKafkaPods() {
-		List<Pod> kafkaPods = OpenShiftProvisioner.openShift.getLabeledPods("app.kubernetes.io/name", "kafka");
+	default List<Pod> getKafkaPods() {
+		List<Pod> kafkaPods = retrieveKafkaPods();
 		// Let's filter out just those who match particular naming
 		for (Pod kafkaPod : kafkaPods) {
 			if (!kafkaPod.getMetadata().getName().contains(getApplication().getName() + "-kafka-")) {
@@ -325,6 +325,10 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 		return kafkaPods;
 	}
 
+	List<Pod> retrieveKafkaPods();
+
+	List<Pod> retrieveKafkaZookeperPods();
+
 	/**
 	 * Get list of all Zookeeper pods on OpenShift instance with regards this Kafka cluster.
 	 * <br><br>
@@ -332,8 +336,8 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 	 * But we list only Zookeeper related pods here.
 	 * @return list of Kafka pods
 	 */
-	public List<Pod> getZookeeperPods() {
-		List<Pod> kafkaPods = OpenShiftProvisioner.openShift.getLabeledPods("app.kubernetes.io/name", "zookeeper");
+	default List<Pod> getZookeeperPods() {
+		List<Pod> kafkaPods = retrieveKafkaZookeperPods();
 		// Let's filter out just those who match particular naming
 		for (Pod kafkaPod : kafkaPods) {
 			if (!kafkaPod.getMetadata().getName().contains(getApplication().getName() + "-zookeeper-")) {
@@ -344,8 +348,7 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 		return kafkaPods;
 	}
 
-	@Override
-	public void scale(int replicas, boolean wait) {
+	default void scale(int replicas, boolean wait) {
 		Kafka kafka = getApplication().getKafka();
 		// Note we change replicas of Kafka instances only (no Zookeeper replicas number change).
 		kafka.getSpec().getKafka().setReplicas(replicas);
@@ -357,18 +360,15 @@ public class KafkaOperatorProvisioner extends OperatorProvisioner<KafkaOperatorA
 		}
 	}
 
-	@Override
-	protected String getOperatorCatalogSource() {
+	default String getOperatorCatalogSource() {
 		return IntersmashConfig.kafkaOperatorCatalogSource();
 	}
 
-	@Override
-	protected String getOperatorIndexImage() {
+	default String getOperatorIndexImage() {
 		return IntersmashConfig.kafkaOperatorIndexImage();
 	}
 
-	@Override
-	protected String getOperatorChannel() {
+	default String getOperatorChannel() {
 		return IntersmashConfig.kafkaOperatorChannel();
 	}
 }

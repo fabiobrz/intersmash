@@ -15,20 +15,30 @@
  */
 package org.jboss.intersmash.provision.openshift;
 
+<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/KeycloakOperatorProvisionerFactory.java
 import org.jboss.intersmash.application.Application;
 import org.jboss.intersmash.application.openshift.KeycloakOperatorApplication;
 import org.jboss.intersmash.provision.ProvisionerFactory;
+=======
+import org.jboss.intersmash.tools.application.Application;
+import org.jboss.intersmash.tools.application.operator.KeycloakOperatorApplication;
+import org.jboss.intersmash.tools.provision.ProvisionerFactory;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/openshift/KeycloakOperatorProvisionerFactory.java
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/KeycloakOperatorProvisionerFactory.java
 public class KeycloakOperatorProvisionerFactory
 		implements ProvisionerFactory<KeycloakOperatorProvisioner> {
+=======
+public class KeycloakOperatorProvisionerFactory implements ProvisionerFactory<KeycloakOpenShiftOperatorProvisioner> {
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/openshift/KeycloakOperatorProvisionerFactory.java
 
 	@Override
-	public KeycloakOperatorProvisioner getProvisioner(Application application) {
+	public KeycloakOpenShiftOperatorProvisioner getProvisioner(Application application) {
 		if (KeycloakOperatorApplication.class.isAssignableFrom(application.getClass()))
-			return new KeycloakOperatorProvisioner((KeycloakOperatorApplication) application);
+			return new KeycloakOpenShiftOperatorProvisioner((KeycloakOperatorApplication) application);
 		return null;
 	}
 }

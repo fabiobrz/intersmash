@@ -13,13 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.intersmash.application.openshift.input;
+package org.jboss.intersmash.application.operator;
+
+import java.util.List;
+
+import org.infinispan.v1.Infinispan;
+import org.infinispan.v2alpha1.Cache;
 
 /**
- * Use the {@link BuildInputBuilder} to get instances implementing the {@link BuildInput} interface.
+ * End user Application interface which presents Infinispan operator application on OpenShift Container Platform.
  *
- * @see GitSourceBuilder
- * @see BinarySourceBuilder
+ * The application will be deployed by:
+ * <ul>
+ *     <li>{@link org.jboss.intersmash.tools.provision.operator.InfinispanOperatorProvisioner}</li>
+ * </ul>
  */
-public interface BuildInput {
+public interface InfinispanOperatorApplication extends OperatorApplication {
+
+	Infinispan getInfinispan();
+
+	List<Cache> getCaches();
 }

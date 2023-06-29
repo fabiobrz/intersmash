@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.intersmash.application.openshift.input;
+package org.jboss.intersmash.application.input;
 
-import java.nio.file.Path;
+public interface GitSourceBuilder {
 
-/**
- * {@link BuildInput} represented by path to archive to be deployed
- */
-public interface BinarySource extends BuildInput {
+	GitSourceBuilder uri(String uri);
 
-	Path getArchive();
+	GitSourceBuilder ref(String ref);
+
+	GitSourceBuilder contextDir(String contextDir);
+
+	BuildInput build();
 
 }

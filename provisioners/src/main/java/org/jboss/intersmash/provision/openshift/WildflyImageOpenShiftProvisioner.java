@@ -27,12 +27,21 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.assertj.core.util.Strings;
+<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/WildflyImageOpenShiftProvisioner.java
 import org.jboss.intersmash.IntersmashConfig;
 import org.jboss.intersmash.application.openshift.WildflyImageOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.WildflyOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.input.BinarySource;
 import org.jboss.intersmash.application.openshift.input.BuildInput;
 import org.jboss.intersmash.application.openshift.input.GitSource;
+=======
+import org.jboss.intersmash.tools.IntersmashConfig;
+import org.jboss.intersmash.tools.application.input.BinarySource;
+import org.jboss.intersmash.tools.application.input.BuildInput;
+import org.jboss.intersmash.tools.application.input.GitSource;
+import org.jboss.intersmash.tools.application.openshift.WildflyImageOpenShiftApplication;
+import org.jboss.intersmash.tools.application.openshift.WildflyOpenShiftApplication;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/openshift/WildflyImageOpenShiftProvisioner.java
 import org.slf4j.event.Level;
 
 import cz.xtf.builder.builders.ApplicationBuilder;

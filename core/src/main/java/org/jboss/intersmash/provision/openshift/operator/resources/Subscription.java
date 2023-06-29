@@ -41,10 +41,9 @@ public class Subscription extends io.fabric8.openshift.api.model.operatorhub.v1a
 		super();
 	}
 
-	private SubscriptionFluent<SubscriptionBuilder>.SpecNested<SubscriptionBuilder> getConfiguredSubscriptionBuilder(
-			String sourceNamespace, String targetNamespace,
-			String source, String name, String channel,
-			String installPlanApproval) {
+	private SubscriptionFluent<SubscriptionBuilder>.SpecNested<SubscriptionBuilder> getConfiguredSubscriptionBuilder(final String sourceNamespace,
+			final String source, final String name, final String channel, final String installPlanApproval,
+			final String targetNamespace) {
 		return new SubscriptionBuilder()
 				.withNewMetadata()
 				.withName(name)
@@ -58,9 +57,9 @@ public class Subscription extends io.fabric8.openshift.api.model.operatorhub.v1a
 				.withInstallPlanApproval(Strings.isNullOrEmpty(installPlanApproval) ? "Automatic" : installPlanApproval);
 	}
 
-	public Subscription(String sourceNamespace, String targetNamespace, String source, String name, String channel,
-			String installPlanApproval,
-			Map<String, String> envVariables) {
+	public Subscription(final String sourceNamespace, final String source, final String name, final String channel,
+			final String installPlanApproval,
+			final Map<String, String> envVariables, final String targetNamespace) {
 		this();
 		io.fabric8.openshift.api.model.operatorhub.v1alpha1.Subscription loaded = getConfiguredSubscriptionBuilder(
 				sourceNamespace, targetNamespace, source, name, channel, installPlanApproval)
@@ -76,8 +75,8 @@ public class Subscription extends io.fabric8.openshift.api.model.operatorhub.v1a
 		this.setSpec(loaded.getSpec());
 	}
 
-	public Subscription(String sourceNamespace, String targetNamespace, String source, String name, String channel,
-			String installPlanApproval) {
+	public Subscription(final String sourceNamespace, final String source, final String name, final String channel,
+			final String installPlanApproval, final String targetNamespace) {
 		this();
 		io.fabric8.openshift.api.model.operatorhub.v1alpha1.Subscription loaded = getConfiguredSubscriptionBuilder(
 				sourceNamespace, targetNamespace, source, name, channel, installPlanApproval)

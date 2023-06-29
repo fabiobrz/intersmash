@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.intersmash.application.openshift.input;
+package org.jboss.intersmash.application.operator;
 
-public interface GitSourceBuilder {
+import io.hyperfoil.v1alpha2.Hyperfoil;
 
-	GitSourceBuilder uri(String uri);
-
-	GitSourceBuilder ref(String ref);
-
-	GitSourceBuilder contextDir(String contextDir);
-
-	BuildInput build();
-
+public interface HyperfoilOperatorApplication extends OperatorApplication {
+	Hyperfoil getHyperfoil();
 }

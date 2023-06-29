@@ -451,6 +451,11 @@
                 <artifactId>maven-settings-builder</artifactId>
                 <version>${version.maven}</version>
             </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${version.assertj-core}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

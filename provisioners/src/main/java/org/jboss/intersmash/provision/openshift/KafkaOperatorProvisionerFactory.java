@@ -15,19 +15,25 @@
  */
 package org.jboss.intersmash.provision.openshift;
 
+<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/KafkaOperatorProvisionerFactory.java
 import org.jboss.intersmash.application.Application;
 import org.jboss.intersmash.application.openshift.KafkaOperatorApplication;
 import org.jboss.intersmash.provision.ProvisionerFactory;
+=======
+import org.jboss.intersmash.tools.application.Application;
+import org.jboss.intersmash.tools.application.operator.KafkaOperatorApplication;
+import org.jboss.intersmash.tools.provision.ProvisionerFactory;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/openshift/KafkaOperatorProvisionerFactory.java
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class KafkaOperatorProvisionerFactory implements ProvisionerFactory<KafkaOperatorProvisioner> {
+public class KafkaOperatorProvisionerFactory implements ProvisionerFactory<KafkaOpenShiftOperatorProvisioner> {
 
 	@Override
-	public KafkaOperatorProvisioner getProvisioner(Application application) {
+	public KafkaOpenShiftOperatorProvisioner getProvisioner(Application application) {
 		if (KafkaOperatorApplication.class.isAssignableFrom(application.getClass()))
-			return new KafkaOperatorProvisioner((KafkaOperatorApplication) application);
+			return new KafkaOpenShiftOperatorProvisioner((KafkaOperatorApplication) application);
 		return null;
 	}
 }

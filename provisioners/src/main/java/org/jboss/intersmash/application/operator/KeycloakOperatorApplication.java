@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.intersmash.application.openshift;
+package org.jboss.intersmash.application.operator;
 
 import java.util.Collections;
 import java.util.List;
 
-import io.fabric8.kubernetes.api.model.ConfigMap;
-import io.fabric8.kubernetes.api.model.Secret;
+import org.jboss.intersmash.tools.provision.openshift.KeycloakRealmImportOpenShiftOperatorProvisioner;
+import org.keycloak.k8s.v2alpha1.Keycloak;
+import org.keycloak.k8s.v2alpha1.KeycloakRealmImport;
 
 /**
- * This interface is not supposed to be implemented by user Applications. See the "Mapping of implemented provisioners"
- * section of Intersmash README.md file for the up-to-date list of supported end users Applications.
+ * End user Application interface which presents Keycloak operator application on OpenShift Container Platform.
+ *
+ * The application will be deployed by:
+ * <ul>
+ *     <li>{@link KeycloakRealmImportOpenShiftOperatorProvisioner}</li>
+ * </ul>
  */
-public interface OperatorApplication extends OpenShiftApplication, HasSecrets, HasConfigMaps {
+public interface KeycloakOperatorApplication extends OperatorApplication {
 
-	@Override
-	default List<Secret> getSecrets() {
+	Keycloak getKeycloak();
+
+	default List<KeycloakRealmImport> getKeycloakRealmImports() {
 		return Collections.emptyList();
 	}
-
-	@Override
-	default List<ConfigMap> getConfigMaps() {
-		return Collections.emptyList();
-	}
-
 }

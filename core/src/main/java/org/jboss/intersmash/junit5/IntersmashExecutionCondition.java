@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 import org.jboss.intersmash.IntersmashConfig;
 import org.jboss.intersmash.annotations.Intersmash;
 import org.jboss.intersmash.annotations.Service;
-import org.jboss.intersmash.application.openshift.OperatorApplication;
 import org.junit.jupiter.api.extension.ConditionEvaluationResult;
 import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;

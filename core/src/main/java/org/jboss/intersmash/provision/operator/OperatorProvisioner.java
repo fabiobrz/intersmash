@@ -13,32 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.intersmash.provision.openshift.operator;
+package org.jboss.intersmash.provision.operator;
+
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
 import org.assertj.core.util.Strings;
 import org.jboss.intersmash.IntersmashConfig;
-import org.jboss.intersmash.application.openshift.OperatorApplication;
-import org.jboss.intersmash.provision.openshift.OpenShiftProvisioner;
+import org.jboss.intersmash.application.operator.OperatorApplication;
 import org.jboss.intersmash.provision.openshift.operator.resources.CatalogSource;
 import org.jboss.intersmash.provision.openshift.operator.resources.Subscription;
 import org.slf4j.event.Level;
 
-import cz.xtf.core.config.OpenShiftConfig;
-import cz.xtf.core.openshift.OpenShift;
-import cz.xtf.core.openshift.OpenShiftBinary;
-import cz.xtf.core.openshift.OpenShiftWaiters;
-import cz.xtf.core.openshift.OpenShifts;
 import cz.xtf.core.waiting.SimpleWaiter;
 import cz.xtf.core.waiting.failfast.FailFastCheck;
 import dev.failsafe.Failsafe;
@@ -59,7 +54,7 @@ import lombok.extern.slf4j.Slf4j;
  * oc get clusterserviceversion
  */
 @Slf4j
-public abstract class OperatorProvisioner<T extends OperatorApplication> implements OpenShiftProvisioner<T> {
+public abstract class OperatorProvisioner<T extends OperatorApplication> implements OlmOperatorProvisioner<T> {
 	// cache the current csv and list of provided custom resource definitions
 	static String currentCSV;
 	final String packageManifestName;
@@ -68,8 +63,6 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 	private PackageManifest packageManifest;
 	private String operatorChannel;
 	protected FailFastCheck ffCheck = () -> false;
-	private OpenShift adminShift;
-	private OpenShiftBinary adminBinary;
 	private Set<String> customResourceDefinitions;
 	private static final RetryPolicy<PackageManifest> RETRY_POLICY_LOOKUP_MATCHING_PACKAGE_MANIFEST = RetryPolicy
 			.<PackageManifest> builder()
@@ -86,9 +79,6 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 
 	@Override
 	public void configure() {
-		this.adminShift = OpenShifts.admin();
-		this.adminBinary = OpenShifts.adminBinary();
-
 		// custom catalog source initialization
 		catalogSource = initCatalogSource();
 
@@ -123,17 +113,15 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 
 	protected abstract String getOperatorChannel();
 
+	protected abstract String getOperatorNamespace();
+
 	/**
 	 * The CatalogSource is in the "openshift-marketplace" namespace by default;
 	 * When a custom operator image must be used, then a custom CatalogSource will be created in the current namespace;
 	 * @return namespace where the custom CatalogSource is located
 	 */
-	private String getCatalogSourceNamespace() {
-		String namespace = IntersmashConfig.defaultOperatorCatalogSourceNamespace(); // default namespace for CatalogSources
-		if (!Strings.isNullOrEmpty(getOperatorIndexImage())) {
-			namespace = OpenShiftConfig.namespace();
-		}
-		return namespace;
+	protected String getCatalogSourceNamespace() {
+		return IntersmashConfig.defaultOperatorCatalogSourceNamespace(); // default namespace for CatalogSources
 	}
 
 	/**
@@ -192,13 +180,17 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 					"grpc",
 					operatorIndexImage,
 					catalogSourceName,
-					"jboss-tests@redhat.com");
+					"intersmash@intersmash.org");
 			try {
-				adminBinary.execute("apply", "-f", catalogSource.save().getAbsolutePath());
+				this.execute("apply", "-f",
+						new CatalogSource()
+								.load(catalogSource)
+								.save()
+								.getAbsolutePath());
 				AtomicReference<String> catalogSourceStatus = new AtomicReference<>();
 				new SimpleWaiter(() -> {
 					// oc get CatalogSource redhat-operators -n openshift-marketplace -o template --template {{.status.connectionState.lastObservedState}}
-					catalogSourceStatus.set(adminBinary.execute("get", "CatalogSource", catalogSource.getMetadata().getName(),
+					catalogSourceStatus.set(this.execute("get", "CatalogSource", catalogSource.getMetadata().getName(),
 							"-n", operatorCatalogSourceNamespace,
 							"-o", "template", "--template",
 							"{{.status.connectionState.lastObservedState}}",
@@ -219,34 +211,24 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 						catalogSource.getMetadata().getName()), e);
 			}
 		} else {
-			// load CatalogSource by name from OpenShift cluster
-			io.fabric8.openshift.api.model.operatorhub.v1alpha1.CatalogSource existing = OpenShifts
-					.admin(IntersmashConfig.defaultOperatorCatalogSourceNamespace()).operatorHub()
-					.catalogSources().list().getItems()
-					.stream().filter(cs -> cs.getMetadata().getName().equalsIgnoreCase(operatorCatalogSource))
-					.findFirst().orElseThrow(
-							() -> new IllegalStateException(
-									"Unable to retrieve CatalogSource " + operatorCatalogSource));
-			catalogSource = new CatalogSource();
-			catalogSource.load(existing);
+			// load CatalogSource from the actual resource
+			catalogSource = new CatalogSource().load(
+					getCatalogSource(IntersmashConfig.defaultOperatorCatalogSourceNamespace(), operatorCatalogSource));
 		}
 		return catalogSource;
 	}
 
 	private PackageManifest initPackageManifest() {
 		log.debug("Listing package manifests belonging to: " + this.catalogSource.getMetadata().getName());
-		List<PackageManifest> catalogSourcePackageManifests = adminShift.operatorHub().packageManifests().list().getItems()
-				.stream()
-				.filter(pm -> this.catalogSource.getMetadata().getName().equals(pm.getStatus().getCatalogSource()))
-				.collect(Collectors.toList());
-		catalogSourcePackageManifests.stream()
-				.forEach(pm -> log.debug("---> " + pm.getMetadata().getName()));
-		return catalogSourcePackageManifests.stream()
-				.filter(pm -> this.packageManifestName.equals(pm.getMetadata().getName()))
-				.findFirst().orElseThrow(
-						() -> new IllegalStateException(
-								"Unable to retrieve PackageManifest " + this.packageManifestName + " in CatalogSource "
-										+ this.catalogSource.getMetadata().getName()));
+		PackageManifest catalogSourcePackageManifest = this.getPackageManifest(this.packageManifestName,
+				this.getOperatorNamespace());
+		if (catalogSourcePackageManifest == null) {
+			throw new IllegalStateException(
+					"Unable to retrieve PackageManifest " + this.packageManifestName + " in CatalogSource "
+							+ this.catalogSource.getMetadata().getName());
+		}
+		log.debug("---> " + catalogSourcePackageManifest.getMetadata().getName());
+		return catalogSourcePackageManifest;
 	}
 
 	private PackageChannel initPackageChannel(String channelName) {
@@ -311,14 +293,12 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 		log.info("Subscribing the {} operator", packageManifestName);
 		// oc get packagemanifest wildfly -o template --template {{.status.defaultChannel}}
 		Subscription operatorSubscription = (envVariables == null || envVariables.isEmpty())
-				? new Subscription(getCatalogSourceNamespace(), OpenShiftConfig.namespace(), getOperatorCatalogSource(),
-						packageManifestName,
-						operatorChannel, installPlanApproval)
-				: new Subscription(getCatalogSourceNamespace(), OpenShiftConfig.namespace(), getOperatorCatalogSource(),
-						packageManifestName,
-						operatorChannel, installPlanApproval, envVariables);
+				? new Subscription(getCatalogSourceNamespace(), getOperatorCatalogSource(), packageManifestName,
+						operatorChannel, installPlanApproval, getTargetNamespace())
+				: new Subscription(getCatalogSourceNamespace(), getOperatorCatalogSource(), packageManifestName,
+						operatorChannel, installPlanApproval, envVariables, getTargetNamespace());
 		try {
-			adminBinary.execute("apply", "-f", operatorSubscription.save().getAbsolutePath());
+			this.execute("apply", "-f", operatorSubscription.save().getAbsolutePath());
 		} catch (IOException e) {
 			throw new RuntimeException(String.format("Failed to serialize the %s subscription object into a yaml file.",
 					operatorSubscription.getMetadata().getName()), e);
@@ -330,7 +310,7 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 			// wait for installPlan to be attached to the subscription
 			new SimpleWaiter(() -> {
 				// oc get subscription rhsso-operator -o template --template="{{.status.installplan.name}}"
-				installPlan.set(adminBinary.execute("get", "subscription", operatorSubscription.getMetadata().getName(),
+				installPlan.set(this.execute("get", "subscription", operatorSubscription.getMetadata().getName(),
 						"-o", "template", "--template",
 						"{{ if .status.installPlanRef.name }}{{.status.installPlanRef.name}}{{ end }}",
 						"--ignore-not-found"));
@@ -344,7 +324,7 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 					.level(Level.DEBUG)
 					.failFast(getFailFastCheck())
 					.waitFor();
-			String outcome = adminBinary.execute("patch", "InstallPlan", installPlan.get(),
+			String outcome = this.execute("patch", "InstallPlan", installPlan.get(),
 					"--type", "merge", "--patch", "{\"spec\":{\"approved\":true}}");
 			if (!Strings.isNullOrEmpty(outcome) && outcome.contains("patched")) {
 				log.info("Approved InstallPlan {} for subscription {}",
@@ -358,7 +338,7 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 		}
 		// oc get clusterserviceversion wildfly-operator.v1.0.0 -o template --template {{.status.phase}}
 		new SimpleWaiter(() -> {
-			String clusterServicePhase = adminBinary.execute("get", "csvs", currentCSV, "-o", "template", "--template",
+			String clusterServicePhase = this.execute("get", "csvs", currentCSV, "-o", "template", "--template",
 					"{{.status.phase}}", "--ignore-not-found");
 			// this is the one where the operator image is pulled
 			return clusterServicePhase != null && clusterServicePhase.equals("Succeeded");
@@ -368,6 +348,8 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 				.waitFor();
 		waitForOperatorPod();
 	}
+
+	protected abstract String getTargetNamespace();
 
 	/**
 	 * <p>Waits for the operator's POD to be ready;</p>
@@ -405,7 +387,7 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 	protected void waitForOperatorPod() {
 		final String metadataNameLabelLegacyName = "name";
 		final String metadataNameLabelName = "app.kubernetes.io/name";
-		String[] operatorSpecs = adminBinary.execute(
+		String[] operatorSpecs = this.execute(
 				"get",
 				"csvs",
 				currentCSV,
@@ -421,8 +403,14 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 			if (operatorSpec.length != 3) {
 				throw new IllegalStateException("Failed to get operator deployment spec from csvs!");
 			}
-			OpenShiftWaiters.get(openShift, getFailFastCheck())
-					.areExactlyNPodsReady(Integer.valueOf(operatorSpec[0]), operatorSpec[1], operatorSpec[2]).level(Level.DEBUG)
+			BooleanSupplier bs = () -> retrievePods().stream()
+					.filter(p -> !com.google.common.base.Strings.isNullOrEmpty(p.getMetadata().getLabels().get(operatorSpec[1]))
+							&& p.getMetadata().getLabels().get(operatorSpec[1]).equals(operatorSpec[2]))
+					.collect(Collectors.toList()).size() == Integer.valueOf(operatorSpec[0]);
+			String reason = "Waiting for exactly " + Integer.valueOf(operatorSpec[0]) + " pods with label \"app\"="
+					+ getApplication().getName() + " to be ready.";
+			new SimpleWaiter(bs, TimeUnit.MINUTES, 2, reason)
+					.level(Level.DEBUG)
 					.waitFor();
 		}
 	}
@@ -436,37 +424,28 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 	 * Documentation: https://docs.openshift.com/container-platform/4.4/operators/olm-deleting-operators-from-cluster.html#olm-deleting-operator-from-a-cluster-using-cli_olm-deleting-operators-from-a-cluster
 	 */
 	public void unsubscribe() {
-		adminBinary.execute("delete", "subscription", packageManifestName, "--ignore-not-found");
-		adminBinary.execute("delete", "csvs", currentCSV, "--ignore-not-found");
+		this.execute("delete", "subscription", packageManifestName, "--ignore-not-found");
+		this.execute("delete", "csvs", currentCSV, "--ignore-not-found");
 		for (String customResource : getCustomResourceDefinitions()) {
-			final String crds = adminBinary.execute("get", "crd", customResource, "--ignore-not-found");
+			final String crds = this.execute("get", "crd", customResource, "--ignore-not-found");
 			if (crds != null && !crds.isEmpty()) {
 				log.info("CRD: {} is still defined on the cluster", customResource);
 			}
 		}
 	}
 
-	@Override
-	public URL getURL() {
-		throw new UnsupportedOperationException("To be implemented!");
-	}
-
 	/**
 	 * @return true is there is an active subscription for the current operator
 	 */
-	protected boolean isSubscribed() {
-		return !Strings.isNullOrEmpty(adminBinary.execute("get", "subscription", packageManifestName,
+	public boolean isSubscribed() {
+		return !Strings.isNullOrEmpty(this.execute("get", "subscription", packageManifestName,
 				"-o", "template", "--template",
 				"{{ .status.state }}",
 				"--ignore-not-found"));
 	}
 
-	protected static String getCurrentCSV() {
+	public String getCurrentCSV() {
 		return currentCSV;
-	}
-
-	protected OpenShiftBinary getAdminBinary() {
-		return adminBinary;
 	}
 
 	@Override
@@ -474,7 +453,7 @@ public abstract class OperatorProvisioner<T extends OperatorApplication> impleme
 		// let's remove any custom catalog source
 		if (Arrays.stream(IntersmashConfig.getKnownCatalogSources())
 				.noneMatch(cs -> this.catalogSource.getMetadata().getName().equals(cs))) {
-			adminBinary.execute("delete", "catalogsource", catalogSource.getMetadata().getName(), "--ignore-not-found");
+			this.execute("delete", "catalogsource", catalogSource.getMetadata().getName(), "--ignore-not-found");
 		}
 	}
 }

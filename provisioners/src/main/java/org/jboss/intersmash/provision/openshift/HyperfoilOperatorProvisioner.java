@@ -21,9 +21,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/HyperfoilOperatorProvisioner.java
 import org.jboss.intersmash.IntersmashConfig;
 import org.jboss.intersmash.application.openshift.HyperfoilOperatorApplication;
-import org.jboss.intersmash.provision.openshift.operator.OperatorProvisioner;
+import org.jboss.intersmash.provision.operator.OperatorProvisioner;
+=======
+import org.jboss.intersmash.tools.IntersmashConfig;
+import org.jboss.intersmash.tools.application.operator.HyperfoilOperatorApplication;
+import org.jboss.intersmash.tools.provision.operator.OperatorProvisioner;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/openshift/HyperfoilOperatorProvisioner.java
 import org.slf4j.event.Level;
 
 import cz.xtf.core.config.OpenShiftConfig;

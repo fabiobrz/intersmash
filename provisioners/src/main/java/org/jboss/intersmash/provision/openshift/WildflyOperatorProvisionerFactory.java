@@ -15,19 +15,25 @@
  */
 package org.jboss.intersmash.provision.openshift;
 
+<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/WildflyOperatorProvisionerFactory.java
 import org.jboss.intersmash.application.Application;
 import org.jboss.intersmash.application.openshift.WildflyOperatorApplication;
 import org.jboss.intersmash.provision.ProvisionerFactory;
+=======
+import org.jboss.intersmash.tools.application.Application;
+import org.jboss.intersmash.tools.application.operator.WildflyOperatorApplication;
+import org.jboss.intersmash.tools.provision.ProvisionerFactory;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/openshift/WildflyOperatorProvisionerFactory.java
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class WildflyOperatorProvisionerFactory implements ProvisionerFactory<WildflyOperatorProvisioner> {
+public class WildflyOperatorProvisionerFactory implements ProvisionerFactory<WildflyOpenShiftOperatorProvisioner> {
 
 	@Override
-	public WildflyOperatorProvisioner getProvisioner(Application application) {
+	public WildflyOpenShiftOperatorProvisioner getProvisioner(Application application) {
 		if (WildflyOperatorApplication.class.isAssignableFrom(application.getClass()))
-			return new WildflyOperatorProvisioner((WildflyOperatorApplication) application);
+			return new WildflyOpenShiftOperatorProvisioner((WildflyOperatorApplication) application);
 		return null;
 	}
 }

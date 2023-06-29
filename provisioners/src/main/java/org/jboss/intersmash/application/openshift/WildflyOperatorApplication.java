@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/application/openshift/WildflyOperatorApplication.java
 package org.jboss.intersmash.application.openshift;
 
 import org.jboss.intersmash.provision.openshift.WildflyOperatorProvisioner;
+========
+package org.jboss.intersmash.tools.application.operator;
+
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/application/operator/WildflyOperatorApplication.java
 import org.wildfly.v1alpha1.WildFlyServer;
 
 /**
@@ -23,7 +28,7 @@ import org.wildfly.v1alpha1.WildFlyServer;
  *
  * The application will be deployed by:
  * <ul>
- *     <li>{@link WildflyOperatorProvisioner}</li>
+ *     <li>{@link org.jboss.intersmash.tools.provision.operator.WildflyOperatorProvisioner}</li>
  * </ul>
  */
 public interface WildflyOperatorApplication extends OperatorApplication {

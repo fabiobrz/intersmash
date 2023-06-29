@@ -20,6 +20,7 @@
         <module>integration-tests</module>
     </modules>
 
+<<<<<<< HEAD
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -34,6 +35,55 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+=======
+        <formatting-style-base-directory>${project.parent.basedir}/ide-config</formatting-style-base-directory>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>cz.xtf</groupId>
+            <artifactId>junit5</artifactId>
+            <version>${xtf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.intersmash</groupId>
+            <artifactId>intersmash-tools-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.intersmash</groupId>
+            <artifactId>intersmash-tools-provisioners</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.intersmash</groupId>
+            <artifactId>intersmash-deployments-provider</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>openshift-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.intersmash</groupId>
+            <artifactId>intersmash-kubernetes-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>uk.org.webcompere</groupId>
+            <artifactId>system-stubs-jupiter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-model-core</artifactId>
+        </dependency>
+    </dependencies>
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI)
 
     <build>
         <plugins>
@@ -60,4 +110,9 @@
             </build>
         </profile>
     </profiles>
+<<<<<<< HEAD
 </project>
+=======
+
+</project>
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI)

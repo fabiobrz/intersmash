@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/application/openshift/HyperfoilOperatorApplication.java
 package org.jboss.intersmash.application.openshift;
+========
+package org.jboss.intersmash.tools.application.operator;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/application/operator/HyperfoilOperatorApplication.java
 
 import io.hyperfoil.v1alpha2.Hyperfoil;
 

@@ -15,9 +15,17 @@
  */
 package org.jboss.intersmash.testsuite.provision.openshift;
 
+<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/WildflyHelmChartProvisionerTest.java
 import org.jboss.intersmash.application.openshift.helm.WildflyHelmChartOpenShiftApplication;
 import org.jboss.intersmash.provision.helm.HelmChartOpenShiftProvisioner;
 import org.jboss.intersmash.provision.helm.wildfly.WildflyHelmChartOpenShiftProvisioner;
+=======
+import org.jboss.intersmash.testsuite.openshift.OpenShiftTest;
+import org.jboss.intersmash.testsuite.openshift.ProjectCreationCapable;
+import org.jboss.intersmash.tools.application.openshift.helm.WildflyHelmChartOpenShiftApplication;
+import org.jboss.intersmash.tools.provision.helm.HelmChartOpenShiftProvisioner;
+import org.jboss.intersmash.tools.provision.helm.WildflyHelmChartOpenShiftProvisioner;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/WildflyHelmChartProvisionerTest.java
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +37,8 @@ import cz.xtf.junit5.annotations.CleanBeforeAll;
  * programmatically
  */
 @CleanBeforeAll
-public class WildflyHelmChartProvisionerTest {
+@OpenShiftTest
+public class WildflyHelmChartProvisionerTest implements ProjectCreationCapable {
 
 	@Test
 	public void basicProvisioningTest() {

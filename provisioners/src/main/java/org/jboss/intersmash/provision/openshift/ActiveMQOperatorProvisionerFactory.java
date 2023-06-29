@@ -15,19 +15,25 @@
  */
 package org.jboss.intersmash.provision.openshift;
 
+<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/ActiveMQOperatorProvisionerFactory.java
 import org.jboss.intersmash.application.Application;
 import org.jboss.intersmash.application.openshift.ActiveMQOperatorApplication;
 import org.jboss.intersmash.provision.ProvisionerFactory;
+=======
+import org.jboss.intersmash.tools.application.Application;
+import org.jboss.intersmash.tools.application.operator.ActiveMQOperatorApplication;
+import org.jboss.intersmash.tools.provision.ProvisionerFactory;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/openshift/ActiveMQOperatorProvisionerFactory.java
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class ActiveMQOperatorProvisionerFactory implements ProvisionerFactory<ActiveMQOperatorProvisioner> {
+public class ActiveMQOperatorProvisionerFactory implements ProvisionerFactory<ActiveMQOpenShiftOperatorProvisioner> {
 
 	@Override
-	public ActiveMQOperatorProvisioner getProvisioner(Application application) {
+	public ActiveMQOpenShiftOperatorProvisioner getProvisioner(Application application) {
 		if (ActiveMQOperatorApplication.class.isAssignableFrom(application.getClass()))
-			return new ActiveMQOperatorProvisioner((ActiveMQOperatorApplication) application);
+			return new ActiveMQOpenShiftOperatorProvisioner((ActiveMQOperatorApplication) application);
 		return null;
 	}
 }

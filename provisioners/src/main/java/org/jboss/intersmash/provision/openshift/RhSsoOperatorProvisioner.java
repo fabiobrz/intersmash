@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/RhSsoOperatorProvisioner.java
 package org.jboss.intersmash.provision.openshift;
+========
+package org.jboss.intersmash.tools.provision.operator;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakOperatorProvisioner.java
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.assertj.core.util.Lists;
 import org.assertj.core.util.Strings;
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/RhSsoOperatorProvisioner.java
 import org.jboss.intersmash.IntersmashConfig;
 import org.jboss.intersmash.application.openshift.RhSsoOperatorApplication;
-import org.jboss.intersmash.provision.openshift.operator.OperatorProvisioner;
+import org.jboss.intersmash.provision.operator.OperatorProvisioner;
 import org.jboss.intersmash.provision.openshift.operator.keycloak.backup.KeycloakBackupList;
 import org.jboss.intersmash.provision.openshift.operator.keycloak.client.KeycloakClientList;
 import org.jboss.intersmash.provision.openshift.operator.keycloak.keycloak.KeycloakList;
@@ -37,14 +41,29 @@ import org.keycloak.v1alpha1.KeycloakBackup;
 import org.keycloak.v1alpha1.KeycloakClient;
 import org.keycloak.v1alpha1.KeycloakRealm;
 import org.keycloak.v1alpha1.KeycloakUser;
+========
+import org.jboss.intersmash.tools.IntersmashConfig;
+import org.jboss.intersmash.tools.application.operator.KeycloakOperatorApplication;
+import org.jboss.intersmash.tools.provision.Provisioner;
+import org.jboss.intersmash.tools.provision.openshift.OpenShiftProvisioner;
+import org.jboss.intersmash.tools.provision.openshift.WaitersUtil;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.backup.KeycloakBackup;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.backup.KeycloakBackupList;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.client.KeycloakClient;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.client.KeycloakClientList;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.keycloak.Keycloak;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.keycloak.KeycloakList;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.realm.KeycloakRealm;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.realm.KeycloakRealmList;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.user.KeycloakUser;
+import org.jboss.intersmash.tools.provision.openshift.operator.keycloak.user.KeycloakUserList;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakOperatorProvisioner.java
 import org.slf4j.event.Level;
 
-import cz.xtf.core.config.OpenShiftConfig;
-import cz.xtf.core.event.helpers.EventHelper;
 import cz.xtf.core.openshift.OpenShiftWaiters;
-import cz.xtf.core.openshift.OpenShifts;
 import cz.xtf.core.openshift.helpers.ResourceParsers;
 import cz.xtf.core.waiting.SimpleWaiter;
+import cz.xtf.core.waiting.failfast.FailFastCheck;
 import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apiextensions.v1.CustomResourceDefinition;
@@ -53,28 +72,31 @@ import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
-import lombok.NonNull;
+import io.fabric8.kubernetes.client.dsl.internal.HasMetadataOperationsImpl;
 
 /**
  * Keycloak operator provisioner
  */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/RhSsoOperatorProvisioner.java
 @Deprecated(since = "0.0.2")
 public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorApplication> {
 	private static final String KEYCLOAK_RESOURCE = "keycloaks.keycloak.org";
 	private static NonNamespaceOperation<Keycloak, KeycloakList, Resource<Keycloak>> KEYCLOAKS_CLIENT;
+========
+public interface KeycloakOperatorProvisioner extends
+		OlmOperatorProvisioner<KeycloakOperatorApplication>, Provisioner<KeycloakOperatorApplication> {
+	String KEYCLOAK_RESOURCE = "keycloaks.keycloak.org";
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakOperatorProvisioner.java
 
-	private static final String KEYCLOAK_REALM_RESOURCE = "keycloakrealms.keycloak.org";
-	private static NonNamespaceOperation<KeycloakRealm, KeycloakRealmList, Resource<KeycloakRealm>> KEYCLOAK_REALMS_CLIENT;
+	String KEYCLOAK_REALM_RESOURCE = "keycloakrealms.keycloak.org";
 
-	private static final String KEYCLOAK_BACKUP_RESOURCE = "keycloakbackups.keycloak.org";
-	private static NonNamespaceOperation<KeycloakBackup, KeycloakBackupList, Resource<KeycloakBackup>> KEYCLOAK_BACKUPS_CLIENT;
+	String KEYCLOAK_BACKUP_RESOURCE = "keycloakbackups.keycloak.org";
 
-	private static final String KEYCLOAK_CLIENT_RESOURCE = "keycloakclients.keycloak.org";
-	private static NonNamespaceOperation<KeycloakClient, KeycloakClientList, Resource<KeycloakClient>> KEYCLOAK_CLIENTS_CLIENT;
+	String KEYCLOAK_CLIENT_RESOURCE = "keycloakclients.keycloak.org";
 
-	private static final String KEYCLOAK_USER_RESOURCE = "keycloakusers.keycloak.org";
-	private static NonNamespaceOperation<KeycloakUser, KeycloakUserList, Resource<KeycloakUser>> KEYCLOAK_USERS_CLIENT;
+	String KEYCLOAK_USER_RESOURCE = "keycloakusers.keycloak.org";
 
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/RhSsoOperatorProvisioner.java
 	// oc get packagemanifest rhsso-operator -n openshift-marketplace
 	private static final String OPERATOR_ID = IntersmashConfig.rhSsoOperatorPackageManifest();
 	private static final String STATEFUL_SET_NAME = "keycloak";
@@ -120,6 +142,31 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	public void deploy() {
 		ffCheck = FailFastUtils.getFailFastCheck(EventHelper.timeOfLastEventBMOrTestNamespaceOrEpoch(),
 				getApplication().getName());
+========
+	String STATEFUL_SET_NAME = "keycloak";
+
+	// this is the packagemanifest for the hyperfoil operator;
+	// you can get it with command:
+	// oc get packagemanifest hyperfoil-bundle -o template --template='{{ .metadata.name }}'
+	static String operatorId() {
+		return IntersmashConfig.keycloakOperatorPackageManifest();
+	}
+
+	default String getOperatorCatalogSource() {
+		return IntersmashConfig.keycloakOperatorCatalogSource();
+	}
+
+	default String getOperatorIndexImage() {
+		return IntersmashConfig.keycloakOperatorIndexImage();
+	}
+
+	default String getOperatorChannel() {
+		return IntersmashConfig.keycloakOperatorChannel();
+	}
+
+	default void deploy() {
+		FailFastCheck ffCheck = () -> false;
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakOperatorProvisioner.java
 		// Keycloak Operator codebase contains the name of the Keycloak image to deploy: user can override Keycloak image to
 		// deploy using environment variables in Keycloak Operator Subscription
 		subscribe();
@@ -157,8 +204,14 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 *
 	 * @param keycloak Concrete {@link Keycloak} instance which the method should be wait for
 	 */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/RhSsoOperatorProvisioner.java
 	public void waitFor(Keycloak keycloak) {
 		int replicas = keycloak.getSpec().getInstances().intValue();
+========
+	default void waitFor(Keycloak keycloak) {
+		FailFastCheck ffCheck = () -> false;
+		int replicas = keycloak.getSpec().getInstances();
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakOperatorProvisioner.java
 		if (replicas > 0) {
 			// 1. check externalDatabase
 			if (keycloak.getSpec().getExternalDatabase() == null || !keycloak.getSpec().getExternalDatabase().getEnabled()) {
@@ -202,8 +255,7 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 					.reason("Wait for keycloakbackups to be ready.").level(Level.DEBUG).waitFor();
 	}
 
-	@Override
-	public void undeploy() {
+	default void undeploy() {
 		// delete custom resources
 		keycloakBackups()
 				.forEach(keycloakBackup -> keycloakBackup.withPropagationPolicy(DeletionPropagation.FOREGROUND).delete());
@@ -231,8 +283,8 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 		unsubscribe();
 	}
 
-	@Override
-	public void scale(int replicas, boolean wait) {
+	default void scale(int replicas, boolean wait) {
+		FailFastCheck ffCheck = () -> false;
 		String controllerRevisionHash = getStatefulSet().getStatus().getUpdateRevision();
 		Keycloak tmpKeycloak = keycloak().get();
 		int originalReplicas = tmpKeycloak.getSpec().getInstances().intValue();
@@ -254,17 +306,15 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 		}
 	}
 
-	@Override
-	public List<Pod> getPods() {
-		StatefulSet statefulSet = OpenShiftProvisioner.openShift.getStatefulSet(STATEFUL_SET_NAME);
+	default List<Pod> getPods() {
+		StatefulSet statefulSet = retrieveNamedStatefulSet(STATEFUL_SET_NAME);
 		return Objects.nonNull(statefulSet)
 				? OpenShiftProvisioner.openShift.getLabeledPods("controller-revision-hash",
 						statefulSet.getStatus().getUpdateRevision())
 				: Lists.emptyList();
 	}
 
-	@Override
-	public URL getURL() {
+	default URL getURL() {
 		// https://github.com/keycloak/keycloak-operator/blob/15.0.2/pkg/apis/keycloak/v1alpha1/keycloak_types.go#L232
 		String externalUrl = keycloak().get().getStatus().getExternalURL();
 		try {
@@ -274,28 +324,25 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 		}
 	}
 
-	// keycloaks.keycloak.org
+	// keycloakrealms.keycloak.org
+
+	HasMetadataOperationsImpl<Keycloak, KeycloakList> keycloaksCustomResourcesClient(CustomResourceDefinitionContext crdc);
+
+	NonNamespaceOperation<Keycloak, KeycloakList, Resource<Keycloak>> keycloaksClient();
 
 	/**
 	 * Get a client capable of working with {@link #KEYCLOAK_RESOURCE} custom resource.
 	 *
 	 * @return client for operations with {@link #KEYCLOAK_RESOURCE} custom resource
 	 */
-	public NonNamespaceOperation<Keycloak, KeycloakList, Resource<Keycloak>> keycloaksClient() {
-		if (KEYCLOAKS_CLIENT == null) {
-			CustomResourceDefinition crd = OpenShifts.admin().apiextensions().v1().customResourceDefinitions()
-					.withName(KEYCLOAK_RESOURCE).get();
-			CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
-			if (!getCustomResourceDefinitions().contains(KEYCLOAK_RESOURCE)) {
-				throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
-						KEYCLOAK_RESOURCE, OPERATOR_ID));
-			}
-			MixedOperation<Keycloak, KeycloakList, Resource<Keycloak>> keycloaksClient = OpenShifts
-					.master()
-					.newHasMetadataOperation(crdc, Keycloak.class, KeycloakList.class);
-			KEYCLOAKS_CLIENT = keycloaksClient.inNamespace(OpenShiftConfig.namespace());
+	default MixedOperation<Keycloak, KeycloakList, Resource<Keycloak>> buildKeycloaksClient() {
+		CustomResourceDefinition crd = retrieveCustomResourceDefinitions().withName(KEYCLOAK_RESOURCE).get();
+		CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
+		if (!retrieveCustomResourceDefinitions().list().getItems().contains(KEYCLOAK_RESOURCE)) {
+			throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
+					KEYCLOAK_RESOURCE, KeycloakOperatorProvisioner.operatorId()));
 		}
-		return KEYCLOAKS_CLIENT;
+		return keycloaksCustomResourcesClient(crdc);
 	}
 
 	/**
@@ -303,32 +350,30 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 * exist on tested cluster.
 	 * @return A concrete {@link Resource} instance representing the {@link Keycloak} resource definition
 	 */
-	public Resource<Keycloak> keycloak() {
+	default Resource<Keycloak> keycloak() {
 		return keycloaksClient().withName(getApplication().getKeycloak().getMetadata().getName());
 	}
 
 	// keycloakrealms.keycloak.org
+	HasMetadataOperationsImpl<KeycloakRealm, KeycloakRealmList> keycloakRealmsCustomResourcesClient(
+			CustomResourceDefinitionContext crdc);
+
+	NonNamespaceOperation<KeycloakRealm, KeycloakRealmList, Resource<KeycloakRealm>> keycloakRealmsClient();
 
 	/**
 	 * Get a client capable of working with {@link #KEYCLOAK_REALM_RESOURCE} custom resource.
 	 *
 	 * @return client for operations with {@link #KEYCLOAK_REALM_RESOURCE} custom resource
 	 */
-	public NonNamespaceOperation<KeycloakRealm, KeycloakRealmList, Resource<KeycloakRealm>> keycloakRealmsClient() {
-		if (KEYCLOAK_REALMS_CLIENT == null) {
-			CustomResourceDefinition crd = OpenShifts.admin().apiextensions().v1().customResourceDefinitions()
-					.withName(KEYCLOAK_REALM_RESOURCE).get();
-			CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
-			if (!getCustomResourceDefinitions().contains(KEYCLOAK_REALM_RESOURCE)) {
-				throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
-						KEYCLOAK_REALM_RESOURCE, OPERATOR_ID));
-			}
-			MixedOperation<KeycloakRealm, KeycloakRealmList, Resource<KeycloakRealm>> keycloakRealmsClient = OpenShifts
-					.master()
-					.newHasMetadataOperation(crdc, KeycloakRealm.class, KeycloakRealmList.class);
-			KEYCLOAK_REALMS_CLIENT = keycloakRealmsClient.inNamespace(OpenShiftConfig.namespace());
+	default MixedOperation<KeycloakRealm, KeycloakRealmList, Resource<KeycloakRealm>> buildKeycloakRealmsClient() {
+		CustomResourceDefinition crd = retrieveCustomResourceDefinitions()
+				.withName(KEYCLOAK_REALM_RESOURCE).get();
+		CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
+		if (!retrieveCustomResourceDefinitions().list().getItems().contains(KEYCLOAK_REALM_RESOURCE)) {
+			throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
+					KEYCLOAK_REALM_RESOURCE, KeycloakOperatorProvisioner.operatorId()));
 		}
-		return KEYCLOAK_REALMS_CLIENT;
+		return keycloakRealmsCustomResourcesClient(crdc);
 	}
 
 	/**
@@ -338,7 +383,7 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 * @param name name of the keycloakrealm custom resource
 	 * @return A concrete {@link Resource} instance representing the {@link KeycloakRealm} resource definition
 	 */
-	public Resource<KeycloakRealm> keycloakRealm(String name) {
+	default Resource<KeycloakRealm> keycloakRealm(String name) {
 		return keycloakRealmsClient().withName(name);
 	}
 
@@ -349,36 +394,42 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 * Use get() to get the actual object, or null in case it does not exist on tested cluster.
 	 * @return A list of {@link Resource} instances representing the {@link KeycloakRealm} resource definitions
 	 */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/RhSsoOperatorProvisioner.java
 	public List<Resource<KeycloakRealm>> keycloakRealms() {
 		RhSsoOperatorApplication rhSsoOperatorApplication = getApplication();
 		return rhSsoOperatorApplication.getKeycloakRealms().stream()
+========
+	default List<Resource<KeycloakRealm>> keycloakRealms() {
+		KeycloakOperatorApplication keycloakOperatorApplication = getApplication();
+		return keycloakOperatorApplication.getKeycloakRealms().stream()
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakOperatorProvisioner.java
 				.map(keycloakRealm -> keycloakRealm.getMetadata().getName())
 				.map(this::keycloakRealm)
 				.collect(Collectors.toList());
 	}
 
 	// keycloakbackups.keycloak.org
+	HasMetadataOperationsImpl<KeycloakBackup, KeycloakBackupList> keycloakBackupsCustomResourcesClient(
+			CustomResourceDefinitionContext crdc);
+
+	NonNamespaceOperation<KeycloakBackup, KeycloakBackupList, Resource<KeycloakBackup>> keycloakBackupsClient();
 
 	/**
 	 * Get a client capable of working with {@link #KEYCLOAK_BACKUP_RESOURCE} custom resource.
 	 *
 	 * @return client for operations with {@link #KEYCLOAK_BACKUP_RESOURCE} custom resource
 	 */
-	public NonNamespaceOperation<KeycloakBackup, KeycloakBackupList, Resource<KeycloakBackup>> keycloakBackupsClient() {
-		if (KEYCLOAK_BACKUPS_CLIENT == null) {
-			CustomResourceDefinition crd = OpenShifts.admin().apiextensions().v1().customResourceDefinitions()
-					.withName(KEYCLOAK_BACKUP_RESOURCE).get();
-			CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
-			if (!getCustomResourceDefinitions().contains(KEYCLOAK_BACKUP_RESOURCE)) {
-				throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
-						KEYCLOAK_BACKUP_RESOURCE, OPERATOR_ID));
-			}
-			MixedOperation<KeycloakBackup, KeycloakBackupList, Resource<KeycloakBackup>> keycloakBackupsClient = OpenShifts
-					.master()
-					.newHasMetadataOperation(crdc, KeycloakBackup.class, KeycloakBackupList.class);
-			KEYCLOAK_BACKUPS_CLIENT = keycloakBackupsClient.inNamespace(OpenShiftConfig.namespace());
+	default MixedOperation<KeycloakBackup, KeycloakBackupList, Resource<KeycloakBackup>> buildKeycloakBackupsClient() {
+		CustomResourceDefinition crd = retrieveCustomResourceDefinitions()
+				.withName(KEYCLOAK_BACKUP_RESOURCE).get();
+		CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
+		if (!retrieveCustomResourceDefinitions().list().getItems().contains(KEYCLOAK_BACKUP_RESOURCE)) {
+			throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
+					KEYCLOAK_BACKUP_RESOURCE, KeycloakOperatorProvisioner.operatorId()));
 		}
-		return KEYCLOAK_BACKUPS_CLIENT;
+
+		return keycloakBackupsCustomResourcesClient(crdc);
+
 	}
 
 	/**
@@ -388,7 +439,7 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 * @param name name of the {@link KeycloakBackup} custom resource
 	 * @return A concrete {@link Resource} instance representing the {@link KeycloakBackup} resource definition
 	 */
-	public Resource<KeycloakBackup> keycloakBackup(String name) {
+	default Resource<KeycloakBackup> keycloakBackup(String name) {
 		return keycloakBackupsClient().withName(name);
 	}
 
@@ -399,36 +450,41 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 * Use get() to get the actual object, or null in case it does not exist on tested cluster.
 	 * @return A list of {@link Resource} instances representing the {@link KeycloakBackup} resource definitions
 	 */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/RhSsoOperatorProvisioner.java
 	public List<Resource<KeycloakBackup>> keycloakBackups() {
 		RhSsoOperatorApplication rhSsoOperatorApplication = getApplication();
 		return rhSsoOperatorApplication.getKeycloakBackups().stream()
+========
+	default List<Resource<KeycloakBackup>> keycloakBackups() {
+		KeycloakOperatorApplication keycloakOperatorApplication = getApplication();
+		return keycloakOperatorApplication.getKeycloakBackups().stream()
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakOperatorProvisioner.java
 				.map(keycloakBackup -> keycloakBackup.getMetadata().getName())
 				.map(this::keycloakBackup)
 				.collect(Collectors.toList());
 	}
 
 	// keycloakclients.keycloak.org
+	HasMetadataOperationsImpl<KeycloakClient, KeycloakClientList> keycloakClientsCustomResourcesClient(
+			CustomResourceDefinitionContext crdc);
+
+	NonNamespaceOperation<KeycloakClient, KeycloakClientList, Resource<KeycloakClient>> keycloakClientsClient();
 
 	/**
 	 * Get a client capable of working with {@link #KEYCLOAK_CLIENT_RESOURCE} custom resource.
 	 *
 	 * @return client for operations with {@link #KEYCLOAK_CLIENT_RESOURCE} custom resource
 	 */
-	public NonNamespaceOperation<KeycloakClient, KeycloakClientList, Resource<KeycloakClient>> keycloakClientsClient() {
-		if (KEYCLOAK_CLIENTS_CLIENT == null) {
-			CustomResourceDefinition crd = OpenShifts.admin().apiextensions().v1().customResourceDefinitions()
-					.withName(KEYCLOAK_CLIENT_RESOURCE).get();
-			CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
-			if (!getCustomResourceDefinitions().contains(KEYCLOAK_CLIENT_RESOURCE)) {
-				throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
-						KEYCLOAK_CLIENT_RESOURCE, OPERATOR_ID));
-			}
-			MixedOperation<KeycloakClient, KeycloakClientList, Resource<KeycloakClient>> keycloakClientsClient = OpenShifts
-					.master()
-					.newHasMetadataOperation(crdc, KeycloakClient.class, KeycloakClientList.class);
-			KEYCLOAK_CLIENTS_CLIENT = keycloakClientsClient.inNamespace(OpenShiftConfig.namespace());
+	default MixedOperation<KeycloakClient, KeycloakClientList, Resource<KeycloakClient>> buildKeycloakClientsClient() {
+		CustomResourceDefinition crd = retrieveCustomResourceDefinitions()
+				.withName(KEYCLOAK_CLIENT_RESOURCE).get();
+		CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
+		if (!retrieveCustomResourceDefinitions().list().getItems().contains(KEYCLOAK_CLIENT_RESOURCE)) {
+			throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
+					KEYCLOAK_CLIENT_RESOURCE, KeycloakOperatorProvisioner.operatorId()));
 		}
-		return KEYCLOAK_CLIENTS_CLIENT;
+
+		return keycloakClientsCustomResourcesClient(crdc);
 	}
 
 	/**
@@ -438,7 +494,7 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 * @param name name of the {@link KeycloakClient} custom resource
 	 * @return A concrete {@link Resource} instance representing the {@link KeycloakClient} resource definition
 	 */
-	public Resource<KeycloakClient> keycloakClient(String name) {
+	default Resource<KeycloakClient> keycloakClient(String name) {
 		return keycloakClientsClient().withName(name);
 	}
 
@@ -449,36 +505,40 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 * Use get() to get the actual object, or null in case it does not exist on tested cluster.
 	 * @return A list of {@link Resource} instances representing the {@link KeycloakClient} resource definitions
 	 */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/RhSsoOperatorProvisioner.java
 	public List<Resource<KeycloakClient>> keycloakClients() {
 		RhSsoOperatorApplication rhSsoOperatorApplication = getApplication();
 		return rhSsoOperatorApplication.getKeycloakClients().stream()
+========
+	default List<Resource<KeycloakClient>> keycloakClients() {
+		KeycloakOperatorApplication keycloakOperatorApplication = getApplication();
+		return keycloakOperatorApplication.getKeycloakClients().stream()
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakOperatorProvisioner.java
 				.map(keycloakClient -> keycloakClient.getMetadata().getName())
 				.map(this::keycloakClient)
 				.collect(Collectors.toList());
 	}
 
 	// keycloakusers.keycloak.org
+	HasMetadataOperationsImpl<KeycloakUser, KeycloakUserList> keycloakUsersCustomResourcesClient(
+			CustomResourceDefinitionContext crdc);
+
+	NonNamespaceOperation<KeycloakUser, KeycloakUserList, Resource<KeycloakUser>> keycloakUsersClient();
 
 	/**
 	 * Get a client capable of working with {@link #KEYCLOAK_USER_RESOURCE} custom resource.
 	 *
 	 * @return client for operations with {@link #KEYCLOAK_USER_RESOURCE} custom resource
 	 */
-	public NonNamespaceOperation<KeycloakUser, KeycloakUserList, Resource<KeycloakUser>> keycloakUsersClient() {
-		if (KEYCLOAK_USERS_CLIENT == null) {
-			CustomResourceDefinition crd = OpenShifts.admin().apiextensions().v1().customResourceDefinitions()
-					.withName(KEYCLOAK_USER_RESOURCE).get();
-			CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
-			if (!getCustomResourceDefinitions().contains(KEYCLOAK_USER_RESOURCE)) {
-				throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
-						KEYCLOAK_USER_RESOURCE, OPERATOR_ID));
-			}
-			MixedOperation<KeycloakUser, KeycloakUserList, Resource<KeycloakUser>> keycloakUsersClient = OpenShifts
-					.master()
-					.newHasMetadataOperation(crdc, KeycloakUser.class, KeycloakUserList.class);
-			KEYCLOAK_USERS_CLIENT = keycloakUsersClient.inNamespace(OpenShiftConfig.namespace());
+	default MixedOperation<KeycloakUser, KeycloakUserList, Resource<KeycloakUser>> buildKeycloakUsersClient() {
+		CustomResourceDefinition crd = retrieveCustomResourceDefinitions()
+				.withName(KEYCLOAK_USER_RESOURCE).get();
+		CustomResourceDefinitionContext crdc = CustomResourceDefinitionContext.fromCrd(crd);
+		if (!retrieveCustomResourceDefinitions().list().getItems().contains(KEYCLOAK_USER_RESOURCE)) {
+			throw new RuntimeException(String.format("[%s] custom resource is not provided by [%s] operator.",
+					KEYCLOAK_USER_RESOURCE, KeycloakOperatorProvisioner.operatorId()));
 		}
-		return KEYCLOAK_USERS_CLIENT;
+		return keycloakUsersCustomResourcesClient(crdc);
 	}
 
 	/**
@@ -488,7 +548,7 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 * @param name name of the keycloakuser custom resource
 	 * @return A concrete {@link Resource} instance representing the {@link KeycloakUser} resource definition
 	 */
-	public Resource<KeycloakUser> keycloakUser(String name) {
+	default Resource<KeycloakUser> keycloakUser(String name) {
 		return keycloakUsersClient().withName(name);
 	}
 
@@ -499,19 +559,27 @@ public class RhSsoOperatorProvisioner extends OperatorProvisioner<RhSsoOperatorA
 	 * Use get() to get the actual object, or null in case it does not exist on tested cluster.
 	 * @return A list of {@link Resource} instances representing the {@link KeycloakUser} resource definitions
 	 */
+<<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/RhSsoOperatorProvisioner.java
 	public List<Resource<KeycloakUser>> keycloakUsers() {
 		RhSsoOperatorApplication rhSsoOperatorApplication = getApplication();
 		return rhSsoOperatorApplication.getKeycloakUsers().stream()
+========
+	default List<Resource<KeycloakUser>> keycloakUsers() {
+		KeycloakOperatorApplication keycloakOperatorApplication = getApplication();
+		return keycloakOperatorApplication.getKeycloakUsers().stream()
+>>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/operator/KeycloakOperatorProvisioner.java
 				.map(keycloakUser -> keycloakUser.getMetadata().getName())
 				.map(this::keycloakUser)
 				.collect(Collectors.toList());
 	}
 
+	StatefulSet retrieveNamedStatefulSet(final String statefulSetName);
+
 	/**
 	 * @return the underlying StatefulSet which provisions the cluster
 	 */
 	private StatefulSet getStatefulSet() {
-		StatefulSet statefulSet = OpenShiftProvisioner.openShift.getStatefulSet(STATEFUL_SET_NAME);
+		StatefulSet statefulSet = retrieveNamedStatefulSet(STATEFUL_SET_NAME);
 		if (Objects.isNull(statefulSet)) {
 			throw new IllegalStateException(String.format(
 					"Impossible to find StatefulSet with name=\"%s\"!",

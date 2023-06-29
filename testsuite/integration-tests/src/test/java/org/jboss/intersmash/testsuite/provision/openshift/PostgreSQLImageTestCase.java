@@ -19,6 +19,13 @@ import org.assertj.core.api.Assertions;
 import org.jboss.intersmash.application.openshift.PostgreSQLImageOpenShiftApplication;
 import org.jboss.intersmash.provision.openshift.PostgreSQLImageOpenShiftProvisioner;
 import org.jboss.intersmash.testsuite.junit5.categories.NotForProductizedExecutionProfile;
+<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/PostgreSQLImageTestCase.java
+=======
+import org.jboss.intersmash.testsuite.openshift.OpenShiftTest;
+import org.jboss.intersmash.testsuite.openshift.ProjectCreationCapable;
+import org.jboss.intersmash.tools.application.openshift.PostgreSQLImageOpenShiftApplication;
+import org.jboss.intersmash.tools.provision.openshift.PostgreSQLImageOpenShiftProvisioner;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/PostgreSQLImageTestCase.java
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,7 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 @CleanBeforeAll
 @Slf4j
 @NotForProductizedExecutionProfile
-public class PostgreSQLImageTestCase {
+@OpenShiftTest
+public class PostgreSQLImageTestCase implements ProjectCreationCapable {
 	private static final OpenShift openShift = OpenShifts.master();
 	private static final PostgreSQLImageOpenShiftApplication application = OpenShiftProvisionerTestBase
 			.getPostgreSQLImageOpenShiftApplication();

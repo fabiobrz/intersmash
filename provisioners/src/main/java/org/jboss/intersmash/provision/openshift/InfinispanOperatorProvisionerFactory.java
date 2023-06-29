@@ -15,19 +15,25 @@
  */
 package org.jboss.intersmash.provision.openshift;
 
+<<<<<<< HEAD:provisioners/src/main/java/org/jboss/intersmash/provision/openshift/InfinispanOperatorProvisionerFactory.java
 import org.jboss.intersmash.application.Application;
 import org.jboss.intersmash.application.openshift.InfinispanOperatorApplication;
 import org.jboss.intersmash.provision.ProvisionerFactory;
+=======
+import org.jboss.intersmash.tools.application.Application;
+import org.jboss.intersmash.tools.application.operator.InfinispanOperatorApplication;
+import org.jboss.intersmash.tools.provision.ProvisionerFactory;
+>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):tools/intersmash-tools-provisioners/src/main/java/org/jboss/intersmash/tools/provision/openshift/InfinispanOperatorProvisionerFactory.java
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class InfinispanOperatorProvisionerFactory implements ProvisionerFactory<InfinispanOperatorProvisioner> {
+public class InfinispanOperatorProvisionerFactory implements ProvisionerFactory<InfinispanOpenShiftOperatorProvisioner> {
 
 	@Override
-	public InfinispanOperatorProvisioner getProvisioner(Application application) {
+	public InfinispanOpenShiftOperatorProvisioner getProvisioner(Application application) {
 		if (InfinispanOperatorApplication.class.isAssignableFrom(application.getClass()))
-			return new InfinispanOperatorProvisioner((InfinispanOperatorApplication) application);
+			return new InfinispanOpenShiftOperatorProvisioner((InfinispanOperatorApplication) application);
 		return null;
 	}
 }
