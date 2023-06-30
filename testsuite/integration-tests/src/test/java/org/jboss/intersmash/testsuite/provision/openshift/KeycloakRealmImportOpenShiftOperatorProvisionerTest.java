@@ -22,26 +22,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-<<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/KeycloakOperatorProvisionerTest.java
-import org.jboss.intersmash.application.openshift.KeycloakOperatorApplication;
+import org.jboss.intersmash.application.operator.KeycloakOperatorApplication;
 import org.jboss.intersmash.application.openshift.PostgreSQLImageOpenShiftApplication;
 import org.jboss.intersmash.junit5.IntersmashExtension;
-import org.jboss.intersmash.provision.openshift.KeycloakOperatorProvisioner;
+import org.jboss.intersmash.provision.operator.KeycloakOperatorProvisioner;
 import org.jboss.intersmash.provision.openshift.PostgreSQLImageOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.operator.resources.OperatorGroup;
 import org.jboss.intersmash.util.tls.CertificatesUtils;
-========
 import org.jboss.intersmash.testsuite.junit5.categories.NotForProductizedExecutionProfile;
 import org.jboss.intersmash.testsuite.openshift.OpenShiftTest;
 import org.jboss.intersmash.testsuite.openshift.ProjectCreationCapable;
-import org.jboss.intersmash.tools.application.operator.KeycloakRealmImportOperatorApplication;
-import org.jboss.intersmash.tools.application.openshift.PostgreSQLImageOpenShiftApplication;
-import org.jboss.intersmash.tools.junit5.IntersmashExtension;
-import org.jboss.intersmash.tools.provision.openshift.KeycloakRealmImportOpenShiftOperatorProvisioner;
-import org.jboss.intersmash.tools.provision.openshift.PostgreSQLImageOpenShiftProvisioner;
-import org.jboss.intersmash.tools.provision.openshift.operator.resources.OperatorGroup;
-import org.jboss.intersmash.tools.util.tls.CertificatesUtils;
->>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/KeycloakRealmImportOpenShiftOperatorProvisionerTest.java
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -64,6 +54,7 @@ import org.keycloak.k8s.v2alpha1.keycloakspec.db.PasswordSecret;
 import org.keycloak.k8s.v2alpha1.keycloakspec.db.UsernameSecret;
 import org.slf4j.event.Level;
 
+import cz.xtf.core.config.OpenShiftConfig;
 import cz.xtf.core.openshift.OpenShiftWaiters;
 import cz.xtf.core.openshift.OpenShifts;
 import cz.xtf.core.waiting.SimpleWaiter;
@@ -84,14 +75,10 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @CleanBeforeAll
-<<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/KeycloakOperatorProvisionerTest.java
-public class KeycloakOperatorProvisionerTest {
-	private static KeycloakOperatorProvisioner KEYCLOAK_OPERATOR_PROVISIONER;
-========
 @NotForProductizedExecutionProfile
-public class KeycloakRealmImportOpenShiftOperatorProvisionerTest implements ProjectCreationCapable {
+public class KeycloakOperatorProvisionerTest implements ProjectCreationCapable {
+	private static KeycloakOperatorProvisioner KEYCLOAK_OPERATOR_PROVISIONER;
 	private static KeycloakRealmImportOpenShiftOperatorProvisioner KEYCLOAK_OPERATOR_PROVISIONER;
->>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/KeycloakRealmImportOpenShiftOperatorProvisionerTest.java
 
 	private static final String POSTGRESQL_NAME = "postgresql";
 	private static final String POSTGRESQL_DATABASE = "keycloak";
@@ -122,16 +109,10 @@ public class KeycloakRealmImportOpenShiftOperatorProvisionerTest implements Proj
 	private static final PostgreSQLImageOpenShiftProvisioner POSTGRESQL_IMAGE_PROVISIONER = new PostgreSQLImageOpenShiftProvisioner(
 			pgSQLApplication);
 
-<<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/KeycloakOperatorProvisionerTest.java
 	private static KeycloakOperatorProvisioner initializeOperatorProvisioner(final Keycloak keycloak,
 			final String appName) {
-		KeycloakOperatorProvisioner operatorProvisioner = new KeycloakOperatorProvisioner(
+		KeycloakOperatorProvisioner operatorProvisioner = new org.jboss.intersmash.tools.provision.openshift.KeycloakOpenShiftOperatorProvisioner(
 				new KeycloakOperatorApplication() {
-========
-	private static KeycloakRealmImportOpenShiftOperatorProvisioner initializeOperatorProvisioner(final Keycloak keycloak, final String appName) {
-		KeycloakRealmImportOpenShiftOperatorProvisioner operatorProvisioner = new KeycloakRealmImportOpenShiftOperatorProvisioner(
-				new KeycloakRealmImportOperatorApplication() {
->>>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/KeycloakRealmImportOpenShiftOperatorProvisionerTest.java
 
 					@Override
 					public Keycloak getKeycloak() {
@@ -154,9 +135,10 @@ public class KeycloakRealmImportOpenShiftOperatorProvisionerTest implements Proj
 	@BeforeAll
 	public static void createOperatorGroup() throws IOException {
 		matchLabels.put("app", "sso");
-		IntersmashExtension.operatorCleanup();
+		IntersmashExtension.operatorCleanup(false, true);
 		// create operator group - this should be done by InteropExtension
-		OpenShifts.adminBinary().execute("apply", "-f", OperatorGroup.SINGLE_NAMESPACE.save().getAbsolutePath());
+		OpenShifts.adminBinary().execute("apply", "-f",
+				new OperatorGroup(OpenShiftConfig.namespace()).save().getAbsolutePath());
 	}
 
 	@AfterAll

@@ -35,17 +35,17 @@ import org.jboss.intersmash.application.openshift.BootableJarOpenShiftApplicatio
 import org.jboss.intersmash.application.openshift.Eap7ImageOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.Eap7LegacyS2iBuildTemplateApplication;
 import org.jboss.intersmash.application.openshift.Eap7TemplateOpenShiftApplication;
-import org.jboss.intersmash.application.openshift.InfinispanOperatorApplication;
-import org.jboss.intersmash.application.openshift.KafkaOperatorApplication;
-import org.jboss.intersmash.application.openshift.KeycloakOperatorApplication;
+import org.jboss.intersmash.application.operator.InfinispanOperatorApplication;
+import org.jboss.intersmash.application.operator.KafkaOperatorApplication;
+import org.jboss.intersmash.application.operator.KeycloakOperatorApplication;
 import org.jboss.intersmash.application.openshift.MysqlImageOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.PostgreSQLImageOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.PostgreSQLTemplateOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.RhSsoTemplateOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.WildflyImageOpenShiftApplication;
-import org.jboss.intersmash.application.openshift.input.BinarySource;
-import org.jboss.intersmash.application.openshift.input.BuildInput;
-import org.jboss.intersmash.application.openshift.input.BuildInputBuilder;
+import org.jboss.intersmash.application.input.BinarySource;
+import org.jboss.intersmash.application.input.BuildInput;
+import org.jboss.intersmash.application.input.BuildInputBuilder;
 import org.jboss.intersmash.application.openshift.template.Eap7Template;
 import org.jboss.intersmash.application.openshift.template.PostgreSQLTemplate;
 import org.jboss.intersmash.application.openshift.template.RhSsoTemplate;
@@ -54,7 +54,6 @@ import org.jboss.intersmash.test.deployments.DeploymentsProvider;
 import org.jboss.intersmash.test.deployments.TestDeploymentProperties;
 import org.jboss.intersmash.test.deployments.WildflyDeploymentApplicationConfiguration;
 import org.jboss.intersmash.testsuite.IntersmashTestsuiteProperties;
-<<<<<<< HEAD:testsuite/integration-tests/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/OpenShiftProvisionerTestBase.java
 import org.jboss.intersmash.util.CommandLineBasedKeystoreGenerator;
 import org.jboss.intersmash.util.openshift.WildflyOpenShiftUtils;
 import org.jboss.intersmash.util.tls.CertificatesUtils;
@@ -62,18 +61,7 @@ import org.jboss.intersmash.util.wildfly.Eap7CliScriptBuilder;
 import org.keycloak.k8s.v2alpha1.keycloakspec.HostnameBuilder;
 import org.keycloak.k8s.v2alpha1.keycloakspec.HttpBuilder;
 import org.keycloak.k8s.v2alpha1.keycloakspec.IngressBuilder;
-=======
 import org.jboss.intersmash.testsuite.openshift.OpenShiftTest;
-import org.jboss.intersmash.tools.IntersmashConfig;
-import org.jboss.intersmash.tools.application.openshift.BootableJarOpenShiftApplication;
-import org.jboss.intersmash.tools.application.operator.KafkaOperatorApplication;
-import org.jboss.intersmash.tools.application.openshift.MysqlImageOpenShiftApplication;
-import org.jboss.intersmash.tools.application.openshift.PostgreSQLImageOpenShiftApplication;
-import org.jboss.intersmash.tools.application.openshift.WildflyImageOpenShiftApplication;
-import org.jboss.intersmash.tools.application.input.BinarySource;
-import org.jboss.intersmash.tools.application.input.BuildInput;
-import org.jboss.intersmash.tools.application.input.BuildInputBuilder;
->>>>>>> a372bbb ([k8s-support] - Complete draft of k8s provisioning tooling, with Hyperfoil test enabled. Missing parts: docs (limitations and operators based + prerequisited), CI):testsuite/src/test/java/org/jboss/intersmash/testsuite/provision/openshift/OpenShiftProvisionerTestBase.java
 
 import cz.xtf.builder.builders.SecretBuilder;
 import cz.xtf.builder.builders.secret.SecretType;
