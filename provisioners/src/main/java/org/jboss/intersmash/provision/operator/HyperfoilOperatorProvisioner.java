@@ -91,6 +91,9 @@ public interface HyperfoilOperatorProvisioner extends
 				.reason("Wait for expected number of replicas to be active.")
 				.level(Level.DEBUG)
 				.waitFor();
+		WaitersUtil.routeIsUp(getURL().toExternalForm())
+				.level(Level.DEBUG)
+				.waitFor();
 	}
 
 	String getCurrentCSV();

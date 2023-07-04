@@ -32,6 +32,13 @@ import org.jboss.intersmash.util.tls.CertificatesUtils;
 import org.jboss.intersmash.testsuite.junit5.categories.NotForProductizedExecutionProfile;
 import org.jboss.intersmash.testsuite.openshift.OpenShiftTest;
 import org.jboss.intersmash.testsuite.openshift.ProjectCreationCapable;
+import org.jboss.intersmash.application.openshift.PostgreSQLImageOpenShiftApplication;
+import org.jboss.intersmash.application.operator.KeycloakRealmImportOperatorApplication;
+import org.jboss.intersmash.junit5.IntersmashExtension;
+import org.jboss.intersmash.provision.openshift.OpenShiftProvisioner;
+import org.jboss.intersmash.provision.openshift.PostgreSQLImageOpenShiftProvisioner;
+import org.jboss.intersmash.provision.openshift.operator.resources.OperatorGroup;
+import org.jboss.intersmash.util.tls.CertificatesUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -174,7 +181,7 @@ public class KeycloakOperatorProvisionerTest implements ProjectCreationCapable {
 	 * <br> - https://github.com/keycloak/keycloak-operator/tree/master/deploy/examples/keycloak
 	 */
 	@Test
-	public void exampleSso() {
+	public void exampleSso() throws IOException {
 		name = "example-sso";
 
 		final Keycloak keycloak = new Keycloak();
@@ -187,10 +194,14 @@ public class KeycloakOperatorProvisionerTest implements ProjectCreationCapable {
 		spec.setIngress(ingress);
 		Hostname hostname = new Hostname();
 		hostname.setHostname(OpenShifts.master().generateHostname(name));
+
 		// create key, certificate and tls secret: Keycloak expects the secret to be created beforehand
 		String tlsSecretName = name + "-tls-secret";
 		CertificatesUtils.CertificateAndKey certificateAndKey = CertificatesUtils
 				.generateSelfSignedCertificateAndKey(hostname.getHostname().replaceFirst("[.].*$", ""), tlsSecretName);
+		OpenShiftProvisioner.createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName, certificateAndKey.key,
+				certificateAndKey.certificate);
+
 		// add TLS config to keycloak using the secret we just created
 		Http http = new Http();
 		http.setTlsSecret(certificateAndKey.tlsSecret.getMetadata().getName());
@@ -223,7 +234,7 @@ public class KeycloakOperatorProvisionerTest implements ProjectCreationCapable {
 	 * <br> - https://github.com/keycloak/keycloak-operator/tree/master/deploy/examples/keycloak
 	 */
 	@Test
-	public void exampleSsoWithDatabase() {
+	public void exampleSsoWithDatabase() throws IOException {
 		POSTGRESQL_IMAGE_PROVISIONER.configure();
 		try {
 			POSTGRESQL_IMAGE_PROVISIONER.preDeploy();
@@ -242,11 +253,15 @@ public class KeycloakOperatorProvisionerTest implements ProjectCreationCapable {
 					spec.setIngress(ingress);
 					Hostname hostname = new Hostname();
 					hostname.setHostname(OpenShifts.master().generateHostname(name));
+
 					// create key, certificate and tls secret: Keycloak expects the secret to be created beforehand
 					String tlsSecretName = name + "-tls-secret";
 					CertificatesUtils.CertificateAndKey certificateAndKey = CertificatesUtils
 							.generateSelfSignedCertificateAndKey(hostname.getHostname().replaceFirst("[.].*$", ""),
 									tlsSecretName);
+					OpenShiftProvisioner.createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName,
+							certificateAndKey.key, certificateAndKey.certificate);
+
 					// add TLS config to keycloak using the secret we just created
 					Http http = new Http();
 					http.setTlsSecret(certificateAndKey.tlsSecret.getMetadata().getName());

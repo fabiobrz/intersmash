@@ -100,7 +100,7 @@ public interface KeycloakOperatorProvisioner extends
 							getApplication().getKeycloak().getSpec().getHostname().getHostname().replaceFirst("[.].*$", ""),
 							tlsSecretName);
 
-			Secret tlsSecret = createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName, certificateAndKey.key,
+			createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName, certificateAndKey.key,
 					certificateAndKey.certificate);
 
 			// add config to keycloak
