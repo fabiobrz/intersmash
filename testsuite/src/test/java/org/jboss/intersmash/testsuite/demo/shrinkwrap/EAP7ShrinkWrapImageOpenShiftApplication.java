@@ -1,13 +1,13 @@
 package org.jboss.intersmash.testsuite.demo.shrinkwrap;
 
-import org.jboss.intersmash.tools.application.openshift.EAP7ImageOpenShiftApplication;
+import org.jboss.intersmash.tools.application.openshift.LegacyWildflyImageOpenShiftApplication;
 import org.jboss.intersmash.tools.application.openshift.input.BuildInput;
 import org.jboss.intersmash.tools.application.openshift.input.BuildInputBuilder;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.asset.EmptyAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 
-public class EAP7ShrinkWrapImageOpenShiftApplication implements EAP7ImageOpenShiftApplication {
+public class EAP7ShrinkWrapImageOpenShiftApplication implements LegacyWildflyImageOpenShiftApplication {
 	private static String APP_NAME = "hello";
 	private final BuildInput buildInput;
 
