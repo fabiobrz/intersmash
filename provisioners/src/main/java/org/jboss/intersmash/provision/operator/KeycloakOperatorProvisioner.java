@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.stream.Collectors;
 
+import io.fabric8.kubernetes.api.model.KubernetesResourceList;
 import io.fabric8.kubernetes.api.model.Secret;
 import org.assertj.core.util.Lists;
 import org.assertj.core.util.Strings;
@@ -100,7 +101,7 @@ public interface KeycloakOperatorProvisioner extends
 							getApplication().getKeycloak().getSpec().getHostname().getHostname().replaceFirst("[.].*$", ""),
 							tlsSecretName);
 
-			createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName, certificateAndKey.key,
+			Secret tlsSecret = createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName, certificateAndKey.key,
 					certificateAndKey.certificate);
 
 			// add config to keycloak

@@ -30,6 +30,7 @@ import org.jboss.intersmash.provision.openshift.PostgreSQLImageOpenShiftProvisio
 import org.jboss.intersmash.provision.openshift.operator.resources.OperatorGroup;
 import org.jboss.intersmash.util.tls.CertificatesUtils;
 import org.jboss.intersmash.testsuite.junit5.categories.NotForProductizedExecutionProfile;
+import io.fabric8.kubernetes.api.model.Secret;
 import org.jboss.intersmash.testsuite.openshift.OpenShiftTest;
 import org.jboss.intersmash.testsuite.openshift.ProjectCreationCapable;
 import org.jboss.intersmash.application.openshift.PostgreSQLImageOpenShiftApplication;
@@ -199,12 +200,12 @@ public class KeycloakOperatorProvisionerTest implements ProjectCreationCapable {
 		String tlsSecretName = name + "-tls-secret";
 		CertificatesUtils.CertificateAndKey certificateAndKey = CertificatesUtils
 				.generateSelfSignedCertificateAndKey(hostname.getHostname().replaceFirst("[.].*$", ""), tlsSecretName);
-		OpenShiftProvisioner.createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName, certificateAndKey.key,
+		Secret tlsSecret = OpenShiftProvisioner.createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName, certificateAndKey.key,
 				certificateAndKey.certificate);
 
 		// add TLS config to keycloak using the secret we just created
 		Http http = new Http();
-		http.setTlsSecret(certificateAndKey.tlsSecret.getMetadata().getName());
+		http.setTlsSecret(tlsSecret.getMetadata().getName());
 		spec.setHttp(http);
 		spec.setHostname(hostname);
 		keycloak.setSpec(spec);
@@ -259,12 +260,12 @@ public class KeycloakOperatorProvisionerTest implements ProjectCreationCapable {
 					CertificatesUtils.CertificateAndKey certificateAndKey = CertificatesUtils
 							.generateSelfSignedCertificateAndKey(hostname.getHostname().replaceFirst("[.].*$", ""),
 									tlsSecretName);
-					OpenShiftProvisioner.createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName,
+					Secret tlsSecret = OpenShiftProvisioner.createTlsSecret(OpenShifts.master().getNamespace(), tlsSecretName,
 							certificateAndKey.key, certificateAndKey.certificate);
 
 					// add TLS config to keycloak using the secret we just created
 					Http http = new Http();
-					http.setTlsSecret(certificateAndKey.tlsSecret.getMetadata().getName());
+					http.setTlsSecret(tlsSecret.getMetadata().getName());
 					spec.setHttp(http);
 					spec.setHostname(hostname);
 					// database
