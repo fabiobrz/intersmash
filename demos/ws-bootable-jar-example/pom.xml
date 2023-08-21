@@ -10,7 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-       <module>jaxrs</module>
+        <!--   <module>jaxrs</module>   -->
+        <module>jaxws</module> <!--   -->
      </modules>
 
      <properties>
@@ -209,6 +210,7 @@
                             <layer>management</layer>
                             <layer>webservices</layer>
                         </layers>
+
                         <galleon-options>
                             <!-- this flag is super necessary: otherwise wildfly-maven-plugin and
                                  wildfly-jar-maven-plugin would collide  -->
