@@ -21,6 +21,8 @@
  */
 package org.jboss.jaxws;
 
+import jakarta.xml.ws.BindingProvider;
+
 import java.net.URL;
 
 import javax.xml.namespace.QName;
@@ -49,6 +51,10 @@ public class SoapWildflyBootableOpenShiftJarTest {
 		jakarta.xml.ws.Service service = jakarta.xml.ws.Service.create(wsdlURL, serviceName);
 
 		Endpoint proxy = service.getPort(Endpoint.class);
+
+		BindingProvider bp = (BindingProvider) proxy;
+		bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, baseURL.toExternalForm());
+
 		String greeting = proxy.ping();
 		Assertions.assertThat(greeting).contains("pong");
 	}
