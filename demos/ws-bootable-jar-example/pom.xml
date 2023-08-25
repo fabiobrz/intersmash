@@ -3,10 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.jboss.intersmash</groupId>
+    <parent>
+        <groupId>org.jboss.intersmash</groupId>
+        <artifactId>intersmash-demos</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
     <artifactId>ws-bootable-jar-example</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -15,13 +18,11 @@
      </modules>
 
      <properties>
-         <formatting-style-base-directory>${project.parent.parent.parent.basedir}/ide-config</formatting-style-base-directory>
-
-         <version.maven>3.3.9</version.maven>
-         <version.aether>1.1.0</version.aether>
 
          <version.jakarta.ws.rs-api>3.1.0</version.jakarta.ws.rs-api>
          <version.resteasy-bom>6.2.4.Final</version.resteasy-bom>
+
+         <version.resteasy-client-api>6.2.4.Final</version.resteasy-client-api>
 
          <version.jakarta.inject-api>1.0.5</version.jakarta.inject-api>
          <version.jakarta.jakartaee-api>10.0.0</version.jakarta.jakartaee-api>
@@ -31,15 +32,9 @@
          <version.maven-war-plugin>3.3.2</version.maven-war-plugin>
          <version.wildfly-jar-maven-plugin>10.0.0.Final</version.wildfly-jar-maven-plugin>
 
-         <version.wildfly.feature-pack>30.0.0.Beta1-SNAPSHOT</version.wildfly.feature-pack>
+         <version.wildfly.feature-pack>29.0.0.Final</version.wildfly.feature-pack>
          <version.wildfly-cloud-galleon-pack>2.0.0.Final</version.wildfly-cloud-galleon-pack>
-         <version.jbossws-cxf-feature-pack>7.0.0-SNAPSHOT</version.jbossws-cxf-feature-pack>
 
-         <version.lombok>1.18.20</version.lombok>
-         <xtf.version>0.31-202305291230-SNAPSHOT</xtf.version>
-         <version.com.fasterxml.jackson>2.13.1</version.com.fasterxml.jackson>
-         <version.io.fabric8>6.6.0</version.io.fabric8>
-         <version.openshift-client>5.12.2</version.openshift-client>
          <version.jakarta.xml.ws-api>4.0.0</version.jakarta.xml.ws-api>
      </properties>
 
@@ -59,7 +54,11 @@
                  <type>pom</type>
                  <scope>import</scope>
              </dependency>
-             <!-- Used by intersmash-deployments referenced in demos, i.e. bootable-jar app-->
+             <dependency>
+                 <groupId>org.jboss.resteasy</groupId>
+                 <artifactId>resteasy-client-api</artifactId>
+                 <version>${version.resteasy-client-api}</version>
+             </dependency>
             <dependency>
                 <groupId>org.eclipse.microprofile.config</groupId>
                 <artifactId>microprofile-config-api</artifactId>
@@ -139,13 +138,11 @@
         <dependency>
             <groupId>cz.xtf</groupId>
             <artifactId>core</artifactId>
-            <version>${xtf.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${version.lombok}</version>
             <scope>test</scope>
         </dependency>
 
@@ -155,18 +152,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-settings-builder</artifactId>
-            <version>${version.maven}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.aether</groupId>
-            <artifactId>aether-api</artifactId>
-            <version>${version.aether}</version>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>org.jboss.intersmash</groupId>
             <artifactId>intersmash-deployments-provider</artifactId>
@@ -187,55 +172,12 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.wildfly.plugins</groupId>
-                    <artifactId>wildfly-maven-plugin</artifactId>
-                    <version>${wildfly-maven-plugin.version}</version>
-                    <configuration>
-                        <filename>ROOT.war</filename>
-                        <!-- some tests check for the provisioned galleon layers -->
-                        <record-provisioning-state>true</record-provisioning-state>
-                        <feature-packs>
-                            <feature-pack>
-                                <location>org.wildfly:wildfly-galleon-pack:${version.wildfly.feature-pack}</location>
-                            </feature-pack>
-                            <feature-pack>org.wildfly.cloud:wildfly-cloud-galleon-pack:${version.wildfly-cloud-galleon-pack}</feature-pack>
-                            <feature-pack>
-                                <location>org.jboss.ws.cxf:jbossws-cxf-feature-pack:${version.jbossws-cxf-feature-pack}</location>
-                            </feature-pack>
-                        </feature-packs>
-                        <!-- A list of Galleon layers to provision. -->
-                        <layers>
-                            <layer>jaxrs</layer>
-                            <layer>bean-validation</layer>
-                            <layer>management</layer>
-                            <layer>webservices</layer>
-                        </layers>
-
-                        <galleon-options>
-                            <!-- this flag is super necessary: otherwise wildfly-maven-plugin and
-                                 wildfly-jar-maven-plugin would collide  -->
-                            <jboss-fork-embedded>true</jboss-fork-embedded>
-                        </galleon-options>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>package</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!--
-                    All EAP 8 deployments are setting the WAR file name to ROOT, according to the parent POM
-                    maven-war-plugin configuration
-                -->
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>${version.maven-war-plugin}</version>
                     <configuration>
                         <packagingExcludes>WEB-INF/lib/*.jar</packagingExcludes>
-                        <warName>ROOT</warName>
+                        <warName>ROOT.war</warName>
                     </configuration>
                     <executions>
                         <execution>
@@ -256,16 +198,21 @@
                             <feature-pack>
                                 <location>org.wildfly:wildfly-galleon-pack:${version.wildfly.feature-pack}</location>
                             </feature-pack>
+                            <feature-pack>
+                                <location>org.wildfly.cloud:wildfly-cloud-galleon-pack:${version.wildfly-cloud-galleon-pack}</location>
+                            </feature-pack>
                         </feature-packs>
+                        <!-- A list of Galleon layers to provision. -->
+                        <layers>
+                            <layer>jaxrs</layer>
+                            <layer>bean-validation</layer>
+                            <layer>management</layer>
+                            <layer>webservices</layer>
+                        </layers>
                     </configuration>
                 </plugin>
-                <plugin>
-                    <groupId>io.fabric8</groupId>
-                    <artifactId>java-generator-maven-plugin</artifactId>
-                    <version>${version.io.fabric8}</version>
-                </plugin>
             </plugins>
-     </pluginManagement>
+        </pluginManagement>
     </build>
 
     <profiles>

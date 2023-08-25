@@ -13,4 +13,9 @@
     <artifactId>intersmash-demos</artifactId>
     <packaging>pom</packaging>
 
+    <modules>
+        <module>legacy-wildfly-shrinkwrap-example</module>
+        <module>ws-bootable-jar-example</module>
+    </modules>
+
 </project>

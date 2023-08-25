@@ -25,12 +25,11 @@ import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 
 @WebService(targetNamespace = "http://org.jboss.ws/cxf/container")
-public interface Endpoint
-{
-   /**
-   @WebMethod
-   public String greetings(String time);
-**/
-   @WebMethod
-   public String ping();
+public interface Endpoint {
+	/**
+	@WebMethod
+	public String greetings(String time);
+	**/
+	@WebMethod
+	String ping();
 }
