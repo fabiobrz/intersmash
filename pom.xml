@@ -13,7 +13,6 @@
         <module>deployments</module>
         <module>testsuite</module>
         <module>demos</module>
-        <module>demos/legacy-wildfly-shrinkwrap-example</module>
     </modules>
 
     <properties>

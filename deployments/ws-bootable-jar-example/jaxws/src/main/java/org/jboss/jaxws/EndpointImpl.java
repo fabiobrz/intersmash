@@ -24,13 +24,16 @@ package org.jboss.jaxws;
 import jakarta.jws.WebMethod;
 import jakarta.jws.WebService;
 
-@WebService(targetNamespace = "http://org.jboss.ws/cxf/container")
-public interface Endpoint
-{
-   /**
-   @WebMethod
-   public String greetings(String time);
-**/
-   @WebMethod
-   public String ping();
+@WebService(serviceName = "EndpointServiceSERVICE", name = "EndpointService", portName = "EndpointService", endpointInterface = "org.jboss.jaxws.Endpoint", targetNamespace = "http://org.jboss.ws/cxf/container")
+public class EndpointImpl implements Endpoint {
+	@WebMethod
+	public String greetings(String input) {
+		return input + ", hello from WildFly bootable jar!";
+	}
+
+	@WebMethod
+	//@Override
+	public String ping() {
+		return "pong";
+	}
 }

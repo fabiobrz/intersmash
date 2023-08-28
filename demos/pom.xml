@@ -13,4 +13,8 @@
     <artifactId>intersmash-demos</artifactId>
     <packaging>pom</packaging>
 
+    <modules>
+        <module>legacy-wildfly-shrinkwrap-example</module>
+    </modules>
+
 </project>

@@ -21,22 +21,18 @@
  */
 package org.jboss.jaxws;
 
-import java.net.URL;
-import javax.xml.namespace.QName;
+import jakarta.xml.ws.BindingProvider;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.core.Response;
+import java.net.URL;
+
+import javax.xml.namespace.QName;
 
 import org.assertj.core.api.Assertions;
 import org.jboss.intersmash.tools.annotations.Intersmash;
 import org.jboss.intersmash.tools.annotations.Service;
 import org.jboss.intersmash.tools.annotations.ServiceUrl;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
-import org.jboss.jaxws.Endpoint;
 
-import cz.xtf.core.http.Https;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -47,17 +43,35 @@ public class SoapWildflyBootableOpenShiftJarTest {
 	@ServiceUrl(SoapWildflyBootableOpenShiftJarApplication.class)
 	private String appOpenShiftUrl;
 
-	private final String CONTEXT_ROOT = "/ROOT-jaxws";
-
 	@Test
-	public void testNameChange() throws Exception{
-		appOpenShiftUrl = "http://localhost:8080";	// rls test
-		URL baseURL = new URL(appOpenShiftUrl + CONTEXT_ROOT + "/EndpointServiceSERVICE");
+	public void testPing() throws Exception {
+		URL baseURL = new URL(appOpenShiftUrl + "/EndpointServiceSERVICE");
 		QName serviceName = new QName("http://org.jboss.ws/cxf/container", "EndpointServiceSERVICE");
 		URL wsdlURL = new URL(baseURL + "?wsdl");
 		jakarta.xml.ws.Service service = jakarta.xml.ws.Service.create(wsdlURL, serviceName);
+
 		Endpoint proxy = service.getPort(Endpoint.class);
-		String  greeting = proxy.ping();
+
+		BindingProvider bp = (BindingProvider) proxy;
+		bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, baseURL.toExternalForm());
+
+		String greeting = proxy.ping();
 		Assertions.assertThat(greeting).contains("pong");
+	}
+
+	@Test
+	public void testGreet() throws Exception {
+		URL baseURL = new URL(appOpenShiftUrl + "/EndpointServiceSERVICE");
+		QName serviceName = new QName("http://org.jboss.ws/cxf/container", "EndpointServiceSERVICE");
+		URL wsdlURL = new URL(baseURL + "?wsdl");
+		jakarta.xml.ws.Service service = jakarta.xml.ws.Service.create(wsdlURL, serviceName);
+
+		Endpoint proxy = service.getPort(Endpoint.class);
+
+		BindingProvider bp = (BindingProvider) proxy;
+		bp.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, baseURL.toExternalForm());
+
+		String greeting = proxy.greetings("Bob");
+		Assertions.assertThat(greeting).contains("Bob, hello from WildFly");
 	}
 }
