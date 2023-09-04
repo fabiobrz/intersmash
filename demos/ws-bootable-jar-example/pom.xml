@@ -30,9 +30,13 @@
 
          <wildfly-maven-plugin.version>4.0.0.Final</wildfly-maven-plugin.version>
          <version.maven-war-plugin>3.3.2</version.maven-war-plugin>
-         <version.wildfly-jar-maven-plugin>10.0.0.Final</version.wildfly-jar-maven-plugin>
+         <!--
+            Default version for the Bootable JAR Plugin is set here and can be overridden, e.g. also for pulling
+            the productized version
+        -->
+         <version.wildfly-jar-maven-plugin>8.0.0.Final</version.wildfly-jar-maven-plugin>
 
-         <version.wildfly.feature-pack>29.0.0.Final</version.wildfly.feature-pack>
+         <version.wildfly.feature-pack>27.0.0.Final</version.wildfly.feature-pack>
          <version.wildfly-cloud-galleon-pack>2.0.0.Final</version.wildfly-cloud-galleon-pack>
 
          <version.jakarta.xml.ws-api>4.0.0</version.jakarta.xml.ws-api>
@@ -198,18 +202,18 @@
                             <feature-pack>
                                 <location>org.wildfly:wildfly-galleon-pack:${version.wildfly.feature-pack}</location>
                             </feature-pack>
-                            <feature-pack>
-                                <location>org.wildfly.cloud:wildfly-cloud-galleon-pack:${version.wildfly-cloud-galleon-pack}</location>
-                            </feature-pack>
                         </feature-packs>
-                        <!-- A list of Galleon layers to provision. -->
                         <layers>
-                            <layer>jaxrs</layer>
-                            <layer>bean-validation</layer>
-                            <layer>management</layer>
-                            <layer>webservices</layer>
+                            <layer>cloud-server</layer>
+                            <layers>webservices</layers>
                         </layers>
+                        <plugin-options>
+                            <!-- this flag is super necessary: otherwise wildfly-maven-plugin and
+                                 wildfly-jar-maven-plugin would collide  -->
+                            <jboss-fork-embedded>true</jboss-fork-embedded>
+                        </plugin-options>
                     </configuration>
+
                 </plugin>
             </plugins>
         </pluginManagement>
