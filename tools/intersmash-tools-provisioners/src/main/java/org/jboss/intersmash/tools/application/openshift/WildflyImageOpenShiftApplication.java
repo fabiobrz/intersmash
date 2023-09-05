@@ -32,6 +32,19 @@ import io.fabric8.kubernetes.api.model.EnvVar;
 
 public interface WildflyImageOpenShiftApplication extends WildflyOpenShiftApplication, HasEnvVars {
 
+	enum RuntimeVariant {
+		Wildfly,
+		Eap
+	}
+
+	/**
+	 * Runtime variant for a Wildfly application, it can be based on community bits/deliverables (images) or
+	 * productized ones
+	 */
+	default RuntimeVariant getRuntimeVariant() {
+		return RuntimeVariant.Wildfly;
+	}
+
 	/**
 	 * Use the {@link BuildInputBuilder} to get instances implementing the {@link BuildInput} interface.
 	 *

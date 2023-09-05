@@ -36,9 +36,11 @@ import org.jboss.intersmash.tools.application.openshift.KafkaOperatorApplication
 import org.jboss.intersmash.tools.application.openshift.MysqlImageOpenShiftApplication;
 import org.jboss.intersmash.tools.application.openshift.PostgreSQLImageOpenShiftApplication;
 import org.jboss.intersmash.tools.application.openshift.WildflyImageOpenShiftApplication;
+import org.jboss.intersmash.tools.application.openshift.WildflyJavaxImageOpenShiftApplication;
 import org.jboss.intersmash.tools.application.openshift.input.BinarySource;
 import org.jboss.intersmash.tools.application.openshift.input.BuildInput;
 import org.jboss.intersmash.tools.application.openshift.input.BuildInputBuilder;
+import org.jboss.intersmash.tools.util.wildfly.WildflyJavaxCliScriptBuilder;
 
 import cz.xtf.builder.builders.SecretBuilder;
 import cz.xtf.builder.builders.secret.SecretType;
@@ -72,6 +74,9 @@ public class OpenShiftProvisionerTestBase {
 
 	static final String TEST_REPO = IntersmashConfig.deploymentsRepositoryUrl();
 	static final String TEST_REF = IntersmashConfig.deploymentsRepositoryRef();
+
+	static final String WILDFLY_JAKARTA_EE8_TEST_REPO = "https://github.com/openshift/openshift-jee-sample.git";
+	static final String WILDFLY_JAKARTA_EE8_TEST_REF = "master";
 
 	static BootableJarOpenShiftApplication getWildflyBootableJarOpenShiftApplication() {
 		return new BootableJarOpenShiftApplication() {
@@ -593,6 +598,48 @@ public class OpenShiftProvisionerTestBase {
 			@Override
 			public String getName() {
 				return NAME;
+			}
+		};
+	}
+
+	static WildflyJavaxImageOpenShiftApplication getWilflyJavaxOpenShiftImageApplication() {
+		return new WildflyJavaxImageOpenShiftApplication() {
+
+			@Override
+			public List<String> getCliScript() {
+				WildflyJavaxCliScriptBuilder cliScriptBuilder = new WildflyJavaxCliScriptBuilder();
+				cliScriptBuilder.addCommand(
+						String.format("/system-property=%s:add(value=\"%s\")", WILDFLY_TEST_PROPERTY, WILDFLY_TEST_PROPERTY));
+				return cliScriptBuilder.build();
+			}
+
+			@Override
+			public BuildInput getBuildInput() {
+				return new BuildInputBuilder().uri(WILDFLY_JAKARTA_EE8_TEST_REPO).ref(WILDFLY_JAKARTA_EE8_TEST_REF).build();
+			}
+
+			@Override
+			public List<EnvVar> getEnvVars() {
+				List<EnvVar> list = new ArrayList<>();
+				list.add(new EnvVarBuilder().withName(TEST_ENV_VAR.getName()).withValue(TEST_ENV_VAR.getValue()).build());
+				return Collections.unmodifiableList(list);
+			}
+
+			@Override
+			public List<Secret> getSecrets() {
+				List<Secret> secrets = new ArrayList<>();
+				secrets.add(TEST_SECRET);
+				return Collections.unmodifiableList(secrets);
+			}
+
+			@Override
+			public String getName() {
+				return "wildfly-test-app";
+			}
+
+			@Override
+			public String getPingServiceName() {
+				return "wildfly-ping-service";
 			}
 		};
 	}
