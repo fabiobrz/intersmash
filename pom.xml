@@ -12,7 +12,6 @@
         <module>tools</module>
         <module>deployments</module>
         <module>testsuite</module>
-        <module>demos</module>
     </modules>
 
     <properties>
