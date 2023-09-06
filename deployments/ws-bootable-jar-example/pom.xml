@@ -13,7 +13,6 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>jaxrs</module>
         <module>jaxws</module>
      </modules>
 
