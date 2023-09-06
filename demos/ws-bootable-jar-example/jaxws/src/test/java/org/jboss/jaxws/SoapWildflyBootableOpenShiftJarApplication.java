@@ -39,10 +39,8 @@ import io.fabric8.kubernetes.api.model.EnvVarBuilder;
 import io.fabric8.kubernetes.api.model.Secret;
 
 public class SoapWildflyBootableOpenShiftJarApplication implements BootableJarOpenShiftApplication {
-	// private String GROUPID = IntersmashSharedDeploymentsProperties.groupID();
 	private String GROUPID = "org.jboss.intersmash";
 	private String ARTIFACTID = "jaxws";
-	// private String VERSION = IntersmashSharedDeploymentsProperties.version();
 	private String VERSION = "0.0.1-SNAPSHOT";
 	static final String BOOTABLE_JAR_ARTIFACT_PACKAGING = "jar";
 	static final String ARTIFACT_CLASSIFIER = "bootable-openshift";
@@ -89,7 +87,7 @@ public class SoapWildflyBootableOpenShiftJarApplication implements BootableJarOp
 		return "ws-bootable-openshift-jar";
 	}
 
-	//-----------------------------
+	// todo remove local class impl once intersmash issue #85 is resolved
 	class BinarySourceImpl implements BinarySource {
 		Path f;
 

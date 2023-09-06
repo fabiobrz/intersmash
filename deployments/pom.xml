@@ -18,7 +18,6 @@
         <module>intersmash-deployments-shared</module>
         <module>intersmash-deployments-provider</module>
         <module>openshift-jakarta-sample-standalone</module>
-        <module>ws-bootable-jar-example</module>
     </modules>
 
     <properties>

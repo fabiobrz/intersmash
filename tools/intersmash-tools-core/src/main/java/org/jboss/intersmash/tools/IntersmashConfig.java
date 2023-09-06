@@ -238,19 +238,6 @@ public class IntersmashConfig {
 		return XTFConfig.get(BOOTABLE_JAR_IMAGE_URL);
 	}
 
-	// rls test start -------------------
-	private static final String LEGACY_WILDFLY_IMAGE_URL = "intersmash.legacy.wildfly.image";
-	private static final String LEGACY_WILDFLY_RUNTIME_IMAGE_URL = "intersmash.legacy.wildfly.runtime.image";
-
-	public static String legacyWildflyImageURL() {
-		return XTFConfig.get(LEGACY_WILDFLY_IMAGE_URL);
-	}
-
-	public static String legacyWildflyRuntimeImageURL() {
-		return XTFConfig.get(LEGACY_WILDFLY_RUNTIME_IMAGE_URL);
-	}
-	// rls test end -------------------
-
 	public static String wildflyImageURL() {
 		return XTFConfig.get(WILDFLY_IMAGE_URL);
 	}

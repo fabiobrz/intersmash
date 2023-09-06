@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jboss.intersmash</groupId>
-        <artifactId>intersmash-deployments</artifactId>
+        <artifactId>intersmash-demos</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -39,6 +39,7 @@
          <version.wildfly-cloud-galleon-pack>2.0.0.Final</version.wildfly-cloud-galleon-pack>
 
          <version.jakarta.xml.ws-api>4.0.0</version.jakarta.xml.ws-api>
+         <version.spotless-maven-plugin>2.35.0</version.spotless-maven-plugin>
      </properties>
 
      <dependencyManagement>
@@ -159,7 +160,7 @@
             <groupId>org.jboss.intersmash</groupId>
             <artifactId>intersmash-deployments-provider</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.fabric8</groupId>
@@ -215,6 +216,23 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <configuration>
+                    <!-- define a language-specific format -->
+                    <java>
+                        <!-- make sure every file has the following copyright header.
+                          optionally, Spotless can set copyright years by digging
+                          through git history (see "license" section below) -->
+                        <licenseHeader>
+                            <file>${project.basedir}/../../license-header</file>
+                        </licenseHeader>
+                    </java>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <profiles>
@@ -274,63 +292,10 @@
                                 </execution>
                             </executions>
                         </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-        <profile>
-            <id>bootable-jar-baremetal</id>
-            <activation>
-                <file>
-                    <exists>maven/bootable-jar-baremetal</exists>
-                </file>
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
                         <plugin>
-                            <groupId>org.wildfly.plugins</groupId>
-                            <artifactId>wildfly-jar-maven-plugin</artifactId>
-                            <!-- Bare metal but we still need to ensure that artifacts are installed
-                                 correctly into maven repo -->
-                            <executions>
-                                <execution>
-                                    <!-- Create bootable jar for bare metal environment - use already
-                                         defined configuration and add filename & cloud support -->
-                                    <id>bootable-baremetal</id>
-                                    <configuration>
-                                        <output-file-name>${project.build.finalName}-bootable-baremetal.jar</output-file-name>
-                                    </configuration>
-                                    <phase>process-test-sources</phase>
-                                    <goals>
-                                        <goal>package</goal>
-                                    </goals>
-                                </execution>
-                            </executions>
-                        </plugin>
-                        <plugin>
-                            <!-- Install artifacts created by wildfly-jar-maven-plugin plugin
-                                 manually since the plugin installs it under same name -->
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-install-plugin</artifactId>
-                            <executions>
-                                <execution>
-                                    <id>install-bootable-jar-baremetal</id>
-                                    <phase>generate-test-resources</phase>
-                                    <goals>
-                                        <goal>install-file</goal>
-                                    </goals>
-                                    <configuration>
-                                        <groupId>${project.groupId}</groupId>
-                                        <artifactId>${project.artifactId}</artifactId>
-                                        <version>${project.version}</version>
-                                        <packaging>jar</packaging>
-                                        <classifier>bootable-baremetal</classifier>
-                                        <file>${project.build.directory}/${project.build.finalName}-bootable-baremetal.jar
-                                        </file>
-                                    </configuration>
-                                </execution>
-                            </executions>
+                            <groupId>com.diffplug.spotless</groupId>
+                            <artifactId>spotless-maven-plugin</artifactId>
+                            <version>${version.spotless-maven-plugin}</version>
                         </plugin>
                     </plugins>
                 </pluginManagement>
