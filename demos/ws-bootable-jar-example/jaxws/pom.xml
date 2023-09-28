@@ -37,8 +37,7 @@
     <artifactId>jaxws</artifactId>
     <packaging>war</packaging>
 
-    <name>SOAP-example</name>
-
+    <name>Intersmash Demos :: WildFly Webservices Bootable JAR Examples :: SOAP Example</name>
 
     <properties>
         <formatting-style-base-directory>${project.parent.parent.parent.basedir}/ide-config</formatting-style-base-directory>

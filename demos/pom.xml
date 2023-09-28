@@ -13,6 +13,8 @@
     <artifactId>intersmash-demos</artifactId>
     <packaging>pom</packaging>
 
+    <name>Intersmash Demos</name>
+
     <modules>
         <module>ws-bootable-jar-example</module>
     </modules>
