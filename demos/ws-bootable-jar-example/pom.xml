@@ -35,10 +35,9 @@
             Default version for the Bootable JAR Plugin is set here and can be overridden,
             e.g. also for pulling the productized version
         -->
-         <version.wildfly-jar-maven-plugin>8.0.0.Final</version.wildfly-jar-maven-plugin>
+         <version.wildfly-jar-maven-plugin>10.0.0.Final</version.wildfly-jar-maven-plugin>
 
-         <version.wildfly.feature-pack>27.0.0.Final</version.wildfly.feature-pack>
-         <version.wildfly-cloud-galleon-pack>2.0.0.Final</version.wildfly-cloud-galleon-pack>
+         <version.wildfly.feature-pack>29.0.1.Final</version.wildfly.feature-pack>
      </properties>
 
      <dependencyManagement>
