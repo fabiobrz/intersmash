@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import java.util.function.Function;
 
 import org.jboss.intersmash.application.Application;
+import org.jboss.intersmash.application.openshift.LLMApiServerOpenShiftApplication;
 import org.jboss.intersmash.provision.helm.wildfly.WildflyHelmChartOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.ActiveMQOperatorProvisioner;
 import org.jboss.intersmash.provision.openshift.Eap7ImageOpenShiftProvisioner;
@@ -30,6 +31,7 @@ import org.jboss.intersmash.provision.openshift.HyperfoilOperatorProvisioner;
 import org.jboss.intersmash.provision.openshift.InfinispanOperatorProvisioner;
 import org.jboss.intersmash.provision.openshift.KafkaOperatorProvisioner;
 import org.jboss.intersmash.provision.openshift.KeycloakOperatorProvisioner;
+import org.jboss.intersmash.provision.openshift.LLMApiServerOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.MysqlImageOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.PostgreSQLImageOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.PostgreSQLTemplateOpenShiftProvisioner;
@@ -80,14 +82,19 @@ public class ProvisionerManagerTestCase {
 				PostgreSQLImageOpenShiftProvisioner.class),
 		PostgreSQLTemplateOpenShiftApplication(
 				getApplicationMock(org.jboss.intersmash.application.openshift.PostgreSQLTemplateOpenShiftApplication.class,
-						(application) -> when(((org.jboss.intersmash.application.openshift.PostgreSQLTemplateOpenShiftApplication) application).getTemplate())
-								.thenReturn(org.jboss.intersmash.application.openshift.template.PostgreSQLTemplate.POSTGRESQL_PERSISTENT)),
+						(application) -> when(
+								((org.jboss.intersmash.application.openshift.PostgreSQLTemplateOpenShiftApplication) application)
+										.getTemplate())
+								.thenReturn(
+										org.jboss.intersmash.application.openshift.template.PostgreSQLTemplate.POSTGRESQL_PERSISTENT)),
 				PostgreSQLTemplateOpenShiftProvisioner.class),
 		RhSsoOperatorApplication(getApplicationMock(org.jboss.intersmash.application.openshift.RhSsoOperatorApplication.class),
 				RhSsoOperatorProvisioner.class),
 		RhSsoTemplateOpenShiftApplication(
 				getApplicationMock(org.jboss.intersmash.application.openshift.RhSsoTemplateOpenShiftApplication.class,
-						(application) -> when(((org.jboss.intersmash.application.openshift.RhSsoTemplateOpenShiftApplication) application).getTemplate())
+						(application) -> when(
+								((org.jboss.intersmash.application.openshift.RhSsoTemplateOpenShiftApplication) application)
+										.getTemplate())
 								.thenReturn(org.jboss.intersmash.application.openshift.template.RhSsoTemplate.X509_HTTPS)),
 				RhSsoTemplateOpenShiftProvisioner.class),
 		WildflyImageOpenShiftApplication(
@@ -98,7 +105,10 @@ public class ProvisionerManagerTestCase {
 				WildflyOperatorProvisioner.class),
 		WildflyHelmChartOpenShiftApplication(
 				getApplicationMock(org.jboss.intersmash.application.openshift.helm.WildflyHelmChartOpenShiftApplication.class),
-				WildflyHelmChartOpenShiftProvisioner.class);
+				WildflyHelmChartOpenShiftProvisioner.class),
+		LLMApiServerOpenShiftApplication(
+				getApplicationMock(org.jboss.intersmash.application.openshift.LLMApiServerOpenShiftApplication.class),
+				LLMApiServerOpenShiftProvisioner.class);
 
 		private final Application application;
 		private final Class<? extends Provisioner> provisionerClass;

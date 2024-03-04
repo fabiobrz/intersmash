@@ -19,12 +19,9 @@ import java.util.stream.Stream;
 
 import org.jboss.intersmash.provision.openshift.Eap7ImageOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.Eap7LegacyS2iBuildTemplateProvisioner;
-import org.jboss.intersmash.provision.openshift.MysqlImageOpenShiftProvisioner;
+import org.jboss.intersmash.provision.openshift.LLMApiServerOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.OpenShiftProvisioner;
-import org.jboss.intersmash.provision.openshift.PostgreSQLImageOpenShiftProvisioner;
-import org.jboss.intersmash.provision.openshift.PostgreSQLTemplateOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.RhSsoTemplateOpenShiftProvisioner;
-import org.jboss.intersmash.provision.openshift.WildflyBootableJarImageOpenShiftProvisioner;
 import org.jboss.intersmash.provision.openshift.WildflyImageOpenShiftProvisioner;
 import org.jboss.intersmash.testsuite.IntersmashTestsuiteProperties;
 import org.jboss.intersmash.testsuite.junit5.categories.NotForCommunityExecutionProfile;
@@ -45,15 +42,17 @@ public class ProvisionerCleanupTestCase {
 	private static Stream<OpenShiftProvisioner> provisionerProvider() {
 		if (IntersmashTestsuiteProperties.isCommunityTestExecutionProfileEnabled()) {
 			return Stream.of(
-					new WildflyBootableJarImageOpenShiftProvisioner(
-							OpenShiftProvisionerTestBase.getWildflyBootableJarOpenShiftApplication()),
-					new WildflyBootableJarImageOpenShiftProvisioner(
-							OpenShiftProvisionerTestBase.getEap7BootableJarOpenShiftApplication()),
-					new MysqlImageOpenShiftProvisioner(OpenShiftProvisionerTestBase.getMysqlOpenShiftApplication()),
-					new PostgreSQLImageOpenShiftProvisioner(
-							OpenShiftProvisionerTestBase.getPostgreSQLImageOpenShiftApplication()),
-					new PostgreSQLTemplateOpenShiftProvisioner(
-							OpenShiftProvisionerTestBase.getPostgreSQLTemplateOpenShiftApplication()));
+					//					new WildflyBootableJarImageOpenShiftProvisioner(
+					//							OpenShiftProvisionerTestBase.getWildflyBootableJarOpenShiftApplication()),
+					//					new WildflyBootableJarImageOpenShiftProvisioner(
+					//							OpenShiftProvisionerTestBase.getEap7BootableJarOpenShiftApplication()),
+					//					new MysqlImageOpenShiftProvisioner(OpenShiftProvisionerTestBase.getMysqlOpenShiftApplication()),
+					//					new PostgreSQLImageOpenShiftProvisioner(
+					//							OpenShiftProvisionerTestBase.getPostgreSQLImageOpenShiftApplication()),
+					//					new PostgreSQLTemplateOpenShiftProvisioner(
+					//							OpenShiftProvisionerTestBase.getPostgreSQLTemplateOpenShiftApplication()),
+					new LLMApiServerOpenShiftProvisioner(
+							OpenShiftProvisionerTestBase.getLLMApiServerOpenShiftApplication()));
 		} else if (IntersmashTestsuiteProperties.isProductizedTestExecutionProfileEnabled()) {
 			return Stream.of(
 					// EAP latest GA

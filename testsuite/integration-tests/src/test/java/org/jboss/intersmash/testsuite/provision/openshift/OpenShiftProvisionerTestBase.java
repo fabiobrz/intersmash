@@ -17,6 +17,7 @@ package org.jboss.intersmash.testsuite.provision.openshift;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import org.jboss.intersmash.application.openshift.Eap7ImageOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.Eap7LegacyS2iBuildTemplateApplication;
 import org.jboss.intersmash.application.openshift.Eap7TemplateOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.KafkaOperatorApplication;
+import org.jboss.intersmash.application.openshift.LLMApiServerOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.MysqlImageOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.PostgreSQLImageOpenShiftApplication;
 import org.jboss.intersmash.application.openshift.PostgreSQLTemplateOpenShiftApplication;
@@ -706,6 +708,37 @@ public class OpenShiftProvisionerTestBase {
 			@Override
 			public String getPingServiceName() {
 				return "wildfly-ping-service";
+			}
+		};
+	}
+
+	public static LLMApiServerOpenShiftApplication getLLMApiServerOpenShiftApplication() {
+		return new LLMApiServerOpenShiftApplication() {
+
+			private Path configFilePath = null;
+
+			@Override
+			public Integer getNvidiaComGpuResourceLimit() {
+				// If the OpenShift cluster doesn't support GPU accelerations we need to set this to 0 or the deployment will fail
+				// See https://github.com/bekkermans/llm-api-server/blob/main/docs/OpenShift.md#step-5-llm-api-deployment
+				return 0;
+			}
+
+			@Override
+			public Path getConfigFilePath() {
+				try {
+					if (configFilePath == null) {
+						configFilePath = Path.of(this.getClass().getResource("llm-api-server/config.yaml").toURI());
+					}
+					return configFilePath;
+				} catch (URISyntaxException e) {
+					throw new IllegalStateException(e);
+				}
+			}
+
+			@Override
+			public String getName() {
+				return "llm-api-server-app";
 			}
 		};
 	}
