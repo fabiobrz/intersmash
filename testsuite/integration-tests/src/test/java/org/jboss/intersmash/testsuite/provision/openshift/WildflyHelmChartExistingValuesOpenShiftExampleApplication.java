@@ -122,7 +122,7 @@ public class WildflyHelmChartExistingValuesOpenShiftExampleApplication
 			mavenAdditionalArgs = mavenAdditionalArgs.concat(
 					(Strings.isNullOrEmpty(deploymentStream) ? ""
 							: String.format(" -Pts.%s-stream.", getWildflyDeploymentVariantFromStream(deploymentStream))
-							+ deploymentStream));
+									+ deploymentStream));
 		}
 		return wildflyHelmChartRelease;
 	}
