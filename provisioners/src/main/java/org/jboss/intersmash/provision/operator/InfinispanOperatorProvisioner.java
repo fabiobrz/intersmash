@@ -72,18 +72,6 @@ public abstract class InfinispanOperatorProvisioner<C extends NamespacedKubernet
 		return this.client().services().withName(name).get();
 	}
 
-	// TODO: check for removal
-	//	default List<Pod> getStatefulSetPods() {
-	//		StatefulSet statefulSet = getStatefulSet(getApplication().getName());
-	//		return Objects.nonNull(statefulSet)
-	//				? getPods().stream()
-	//				.filter(p -> p.getMetadata().getLabels().get("controller-revision-hash") != null
-	//						&& p.getMetadata().getLabels().get("controller-revision-hash")
-	//						.equals(statefulSet.getStatus().getUpdateRevision()))
-	//				.collect(Collectors.toList())
-	//				: List.of();
-	//	}
-
 	private void waitForResourceReadiness() {
 		// it must be well-formed
 		// see https://github.com/kubernetes/apimachinery/blob/v0.20.4/pkg/apis/meta/v1/types.go#L1289
@@ -137,14 +125,16 @@ public abstract class InfinispanOperatorProvisioner<C extends NamespacedKubernet
 
 	@Override
 	public void undeploy() {
-		// delete Cache CR(s)
-		caches().forEach(keycloakUser -> keycloakUser.withPropagationPolicy(DeletionPropagation.FOREGROUND).delete());
 		// delete Infinispan CR
 		infinispan().withPropagationPolicy(DeletionPropagation.FOREGROUND).delete();
 		// wait for 0 pods
 		BooleanSupplier bs = () -> getInfinispanPods().isEmpty();
 		new SimpleWaiter(bs, TimeUnit.MINUTES, 2,
 				"Waiting for 0 pods with label \"clusterName\"=" + getApplication().getInfinispan().getMetadata().getName())
+				.waitFor();
+		// check that Cache CRs are removed too, since they should be cascade-deleted by the Infinispan CR deletion
+		new SimpleWaiter(() -> caches().isEmpty(), TimeUnit.MINUTES, 2,
+				"Waiting for 0 caches to be present after Infinispan CR was successfully deleted")
 				.waitFor();
 		unsubscribe();
 	}
