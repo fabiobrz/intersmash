@@ -47,7 +47,7 @@
         <wildfly.xp-channel.version />
 
         <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
-        <version.spotless-maven-plugin>2.35.0</version.spotless-maven-plugin>
+        <version.spotless-maven-plugin>2.46.1</version.spotless-maven-plugin>
         <version.maven-deploy-plugin>3.0.0-M1</version.maven-deploy-plugin>
     </properties>
 
